@@ -1,0 +1,15 @@
+# REST API Generation
+flask==1.1.1
+
+# DB & ORM (Object Relational Mapping)
+sqlalchemy==1.3.8
+mysql-connector-python==8.0.17
+
+# To load .env variables
+python-dotenv==0.10.3
+
+# For error handling:
+werkzeug==0.15.6
+
+# As a production server
+gunicorn==19.9.0

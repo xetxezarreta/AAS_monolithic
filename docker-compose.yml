@@ -1,0 +1,25 @@
+version: '3.1'
+services:
+  monolithicapp:
+    build: ./flask_app
+    ports:
+      - '13000:${GUNICORN_PORT}'
+    volumes:
+      - './flask_app/monolithic:/app'
+    environment:
+      GUNICORN_PORT: '${GUNICORN_PORT}'
+      SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
+      # SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI}'
+      SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+    restart: on-failure
+  db:
+    image: mysql
+    restart: always
+    ports:
+      - '13306:${MYSQL_PORT}'
+    environment:
+      MYSQL_DATABASE: '${MYSQL_DATABASE}'
+      MYSQL_USER: '${MYSQL_USER}'
+      MYSQL_PASSWORD: '${MYSQL_PASSWORD}'
+      MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD}'
+
