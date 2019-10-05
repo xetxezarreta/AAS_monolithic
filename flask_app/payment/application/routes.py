@@ -58,7 +58,6 @@ def perform_deposit():
 def request_payment():    
     session = Session()
 
-    payment = None    
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
     content = request.json
