@@ -52,7 +52,7 @@ def perform_deposit():
 # Datos esperados en el post:
 #{
 #	"userId": 1,
-#	"money": 100  #Dinero a cobrar en positivo!!
+#	"money": 100  #Dinero a cobrar siempre en positivo para luego restar!!
 #}
 @app.route('/payment', methods=['POST'])
 def request_payment():    
