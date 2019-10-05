@@ -80,7 +80,7 @@ def request_payment():
             print("no tiene dinero") 
             status = False       
         finally:
-            response = get_payment_response(user.userId, status)
+            response = get_payment_response(status)
         
     except KeyError:
         session.rollback()
@@ -93,9 +93,8 @@ def request_payment():
 # Respuesta del POST del payment.
 # Si se puede realizar el pago, status=True
 # Si no se puede realizar el pago, status=False
-def get_payment_response(userId, status):
+def get_payment_response(status):
     response = {}
-    response['userId'] = userId
     response['status'] = status
     return response
 
