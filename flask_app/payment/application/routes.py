@@ -58,10 +58,12 @@ def perform_deposit():
 def request_payment():    
     session = Session()
 
-    payment = None
+    payment = None    
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
     content = request.json
+
+    status = True
 
     try:
         payment = Payment(
@@ -76,16 +78,26 @@ def request_payment():
             session.commit()
             print(user)
         except NoResultFound:     
-            print("no tiene dinero")        
+            print("no tiene dinero") 
+            status = False       
+        finally:
+            response = get_payment_response(user.userId, status)
         
     except KeyError:
         session.rollback()
         session.close()
-        abort(BadRequest.code)
-
-    response = jsonify(payment.as_dict())
+        abort(BadRequest.code)    
 
     session.close()
+    return response
+
+# Respuesta del POST del payment.
+# Si se puede realizar el pago, status=True
+# Si no se puede realizar el pago, status=False
+def get_payment_response(userId, status):
+    response = {}
+    response['userId'] = userId
+    response['status'] = status
     return response
 
 # Error Handling #######################################################################################################
