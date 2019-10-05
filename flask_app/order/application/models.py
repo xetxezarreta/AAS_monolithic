@@ -44,18 +44,3 @@ class Order(BaseModel):
         d = super().as_dict()
         d['pieces'] = [i.as_dict() for i in self.pieces]
         return d
-
-
-class Piece(BaseModel):
-    STATUS_CREATED = "Created"
-    STATUS_CANCELLED = "Cancelled"
-    STATUS_QUEUED = "Queued"
-    STATUS_MANUFACTURING = "Manufacturing"
-    STATUS_MANUFACTURED = "Manufactured"
-
-    __tablename__ = "piece"
-    ref = Column(Integer, primary_key=True)
-    manufacturing_date = Column(DateTime(timezone=True), server_default=None)
-    status = Column(String(256), default=STATUS_QUEUED)
-    order_id = Column(Integer, ForeignKey('manufacturing_order.id'))
-    order = relationship('Order', backref='piece')
