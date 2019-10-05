@@ -98,6 +98,14 @@ def get_payment_response(status):
     response['status'] = status
     return response
 
+# Database clean #######################################################################################################
+@app.route('/clean_payment', methods=['GET'])
+def clean_payments_database():
+    session = Session()
+    session.query(Payment).delete()
+    session.close()
+    return " filas eliminadas de payment"
+
 # Error Handling #######################################################################################################
 @app.errorhandler(UnsupportedMediaType)
 def unsupported_media_type_handler(e):
