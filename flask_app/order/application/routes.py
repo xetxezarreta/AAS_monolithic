@@ -48,6 +48,7 @@ def create_order():
     session.close()
     return response
 
+# Machine notifica para actualizar delivery.
 #{
 #    "orderId": 1
 #}
