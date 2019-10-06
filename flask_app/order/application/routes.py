@@ -6,40 +6,63 @@ import traceback
 from . import Session
 
 # Order Routes #########################################################################################################
-@app.route('/order', methods=['POST'])
+#{
+#   "userId" : 1    
+#   "number_of_pieces" : 2,
+#}
+@app.route('/create_order', methods=['POST'])
 def create_order():
     session = Session()
-    new_order = None
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
     content = request.json
-    try:
-        new_order = Order(
-            description=content['description'],
-            number_of_pieces=content['number_of_pieces'],
-            status=Order.STATUS_CREATED
-        )
-        session.add(new_order)
-        for i in range(new_order.number_of_pieces):
-            print(i) # Hacer peticiones a la maquina por cada pieza.        
+
+    response = None
+    try:      
+        new_order =  Order(
+            number_of_pieces = content['number_of_pieces'],         
+        )    
+        session.add(new_order) 
         session.commit()
+
+        payment = {}
+        payment['userId'] = content['userId']
+        payment['money'] = 10 * new_order.number_of_pieces # 10 por pieza
+        payment_response = request.post('http://localhost:17000/payment', json=payment)  
+
+        if payment_response['status']:
+            print("bien")
+            manufacture_info = {}
+            manufacture_info['number_of_pieces'] = new_order.number_of_pieces
+            manufacture_info['orderId'] = new_order.orderId
+            response = request.post('http://localhost:15000/machine/request_piece', json=manufacture_info)  
+        else:
+            print("mal") 
+            response = payment_response   
+  
     except KeyError:
         session.rollback()
         session.close()
         abort(BadRequest.code)
-    response = jsonify(new_order.as_dict())
+
     session.close()
     return response
 
+#{
+#    "orderId": 1
+#}
+@app.route('/notify_piece', methods=['POST'])
+def notify_piece():
+    if request.headers['Content-Type'] != 'application/json':
+        abort(UnsupportedMediaType.code)
+    content = request.json
 
-@app.route('/order', methods=['GET'])
-@app.route('/orders', methods=['GET'])
-def view_orders():
-    session = Session()
-    print("GET All Orders.")
-    orders = session.query(Order).all()
-    response = jsonify(Order.list_as_dict(orders))
-    session.close()
+    delivery_update = {}
+    delivery_update['orderId'] = content['orderId']
+    delivery_update['delivered'] = True
+
+    response = request.post('http://localhost:14000/update_delivery', json=delivery_update)
+    print(response)  
     return response
 
 # Error Handling #######################################################################################################

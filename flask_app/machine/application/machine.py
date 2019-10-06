@@ -1,10 +1,11 @@
 from random import randint
 from time import sleep
 from collections import deque
-from .models import Piece, Order
+from .models import Piece
 from threading import Thread, Lock, Event
 import sqlalchemy
 from . import Session
+from flask import request
 
 
 class Machine(Thread):
@@ -46,7 +47,7 @@ class Machine(Thread):
 
             while self.queue.__len__() > 0:
                 self.instance.create_piece()
-
+            
             self.queue_not_empty_event.clear()
             print("Lock thread because query is empty.")
 
@@ -58,7 +59,7 @@ class Machine(Thread):
         piece_ref = self.queue.popleft()
 
         # Machine and piece status updated during manufacturing
-        self.working_piece = self.thread_session.query(Piece).get(piece_ref)
+        self.working_piece = self.thread_session.query(Piece).get(piece_ref)        
 
         # Machine and piece status updated before manufacturing
         self.working_piece_to_manufacturing()
@@ -80,19 +81,33 @@ class Machine(Thread):
     def working_piece_to_finished(self):
         self.instance.status = Machine.STATUS_CHANGING_PIECE
         self.working_piece.status = Piece.STATUS_MANUFACTURED
-
+       
         order_finished = True
-        for piece in self.working_piece.order.pieces:
-            if piece.status != Piece.STATUS_MANUFACTURED:
-                order_finished = False
-        if order_finished:
-            self.working_piece.order.status = Order.STATUS_FINISHED
+        for ref in self.queue:
+            piece = self.thread_session.query(Piece).get(ref) 
+            print("QUEUE: ", self.queue)  
+            print("QUEUE: ", piece)  
+            if piece.orderId == self.working_piece.orderId:
+                if piece.status != Piece.STATUS_MANUFACTURED:
+                    print("order not finished")
+                    order_finished = False
+
+        #for piece in self.working_piece.order.pieces:
+        #    if piece.status != Piece.STATUS_MANUFACTURED:
+        #        order_finished = False
+
+        if order_finished:            
+            print("order finished")
+            order_finished = {}
+            order_finished['orderId'] = self.working_piece.orderId
+            request.post('http://localhost:16000/notify_piece', json=order_finished)           
 
         self.thread_session.commit()
         self.thread_session.flush()
 
     def add_pieces_to_queue(self, pieces):
         for piece in pieces:
+            print(piece)
             self.add_piece_to_queue(piece)
 
     def add_piece_to_queue(self, piece):

@@ -29,16 +29,10 @@ class BaseModel(Base):
 
 
 class Order(BaseModel):
-    STATUS_CREATED = "Created"
-    STATUS_FINISHED = "Finished"
-
     __tablename__ = "manufacturing_order"
     id = Column(Integer, primary_key=True)
     number_of_pieces = Column(Integer, nullable=False)
     description = Column(TEXT, nullable=False, default="No description")
-    status = Column(String(256), nullable=False, default="Created")
-
-    pieces = relationship("Piece", lazy="joined")
 
     def as_dict(self):
         d = super().as_dict()

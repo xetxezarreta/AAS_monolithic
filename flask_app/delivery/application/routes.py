@@ -46,7 +46,7 @@ def create_delivery():
 # Datos esperados:
 #{
 #	"orderId": 1,
-#	"delivered": false
+#	"delivered": true
 #}
 @app.route('/update_delivery', methods=['POST'])
 def update_delivery():
@@ -76,6 +76,14 @@ def update_delivery():
     session.close()
     return response
 
+@app.route('/deliveries', methods=['GET'])
+def view_deliveries():
+    session = Session()
+    print("GET All Deliveries.")
+    deliveries = session.query(Delivery).all()
+    response = jsonify(Delivery.list_as_dict(deliveries))
+    session.close()
+    return response
 
 # Database clean #######################################################################################################
 @app.route('/clean_delivery', methods=['GET'])

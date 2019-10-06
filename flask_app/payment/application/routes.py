@@ -93,6 +93,10 @@ def request_payment():
 # Respuesta del POST del payment.
 # Si se puede realizar el pago, status=True
 # Si no se puede realizar el pago, status=False
+# EJEMPLO:
+#{
+#    "status": true
+#}
 def get_payment_response(status):
     response = {}
     response['status'] = status
