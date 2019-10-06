@@ -30,14 +30,17 @@ def request_piece_mannufacturing():
         pieces_list = list()
         for _ in range(number_of_pieces):
             piece = Piece()
-            piece.orderId = orderId
+            piece.orderId = orderId            
+            session.add(piece)    
+            session.commit()     
+            session.refresh(piece)
+            print(piece)      
             pieces_list.append(piece)
-            session.add(piece)        
 
         if pieces_list: # miramos si hay elemento en la lista.
             my_machine.add_pieces_to_queue(pieces_list)
             status = True
-        session.commit()
+        
     except KeyError:
         session.rollback()
         session.close()

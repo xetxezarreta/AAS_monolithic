@@ -6,6 +6,7 @@ from threading import Thread, Lock, Event
 import sqlalchemy
 from . import Session
 from flask import request
+import requests
 
 
 class Machine(Thread):
@@ -65,7 +66,7 @@ class Machine(Thread):
         self.working_piece_to_manufacturing()
 
         # Simulate piece is being manufactured
-        sleep(randint(5, 20))
+        # sleep(randint(5, 20))
 
         # Machine and piece status updated after manufacturing
         self.working_piece_to_finished()
@@ -84,9 +85,7 @@ class Machine(Thread):
        
         order_finished = True
         for ref in self.queue:
-            piece = self.thread_session.query(Piece).get(ref) 
-            print("QUEUE: ", self.queue)  
-            print("QUEUE: ", piece)  
+            piece = self.thread_session.query(Piece).get(ref)     
             if piece.orderId == self.working_piece.orderId:
                 if piece.status != Piece.STATUS_MANUFACTURED:
                     print("order not finished")
@@ -100,7 +99,7 @@ class Machine(Thread):
             print("order finished")
             order_finished = {}
             order_finished['orderId'] = self.working_piece.orderId
-            request.post('http://localhost:16000/notify_piece', json=order_finished)           
+            requests.post('http://localhost:16000/notify_piece', json=order_finished)           
 
         self.thread_session.commit()
         self.thread_session.flush()
