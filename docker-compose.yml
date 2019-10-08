@@ -4,8 +4,6 @@ services:
   # CLIENT
   # ---------------------------------------------------
   client:
-    env_file:
-      - ./client.env
     build: ./flask_app
     ports:
       - '13000:${GUNICORN_PORT}'
