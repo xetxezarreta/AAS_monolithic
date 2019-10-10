@@ -1,17 +1,83 @@
 version: '3.1'
 services:
-  monolithicapp:
+  # ---------------------------------------------------
+  # CLIENT
+  # ---------------------------------------------------
+  client:
     build: ./flask_app
     ports:
       - '13000:${GUNICORN_PORT}'
     volumes:
-      - './flask_app/monolithic:/app'
+      - './flask_app/client:/app'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
-      SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
-      # SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI}'
+      # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
+      SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
+  # ---------------------------------------------------
+  # DELIVERY
+  # ---------------------------------------------------
+  delivery:
+    build: ./flask_app
+    ports:
+      - '14000:${GUNICORN_PORT}'
+    volumes:
+      - './flask_app/delivery:/app'
+    environment:
+      GUNICORN_PORT: '${GUNICORN_PORT}'
+      # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
+      SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
+      SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+    restart: on-failure
+  # ---------------------------------------------------
+  # MACHINE
+  # ---------------------------------------------------
+  machine:
+    build: ./flask_app
+    ports:
+      - '15000:${GUNICORN_PORT}'
+    volumes:
+      - './flask_app/machine:/app'
+    environment:
+      GUNICORN_PORT: '${GUNICORN_PORT}'
+      # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
+      SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
+      SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+    restart: on-failure
+  # ---------------------------------------------------
+  # ORDER
+  # ---------------------------------------------------
+  order:
+    build: ./flask_app
+    ports:
+      - '16000:${GUNICORN_PORT}'
+    volumes:
+      - './flask_app/order:/app'
+    environment:
+      GUNICORN_PORT: '${GUNICORN_PORT}'
+      # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
+      SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
+      SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+    restart: on-failure
+  # ---------------------------------------------------
+  # PAYMENT
+  # ---------------------------------------------------
+  payment:
+    build: ./flask_app
+    ports:
+      - '17000:${GUNICORN_PORT}'
+    volumes:
+      - './flask_app/payment:/app'
+    environment:
+      GUNICORN_PORT: '${GUNICORN_PORT}'
+      # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
+      SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
+      SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+    restart: on-failure
+  # ---------------------------------------------------
+  # DATABASE
+  # ---------------------------------------------------
   db:
     image: mysql
     restart: always
