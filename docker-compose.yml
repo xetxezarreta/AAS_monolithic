@@ -11,7 +11,7 @@ services:
       - './flask_app/client:/app'
     networks: 
       ipv4_address: 
-        ipv4_address: '{CLIENT_IP}'
+        ipv4_address: '${CLIENT_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
@@ -29,7 +29,7 @@ services:
       - './flask_app/delivery:/app'
     networks: 
       ipv4_address: 
-        ipv4_address: '{DELIVERY_IP}'
+        ipv4_address: '${DELIVERY_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
@@ -47,7 +47,7 @@ services:
       - './flask_app/machine:/app'
     networks: 
       ipv4_address: 
-        ipv4_address: '{MACHINE_IP}'
+        ipv4_address: '${MACHINE_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
@@ -65,7 +65,7 @@ services:
       - './flask_app/order:/app'
     networks: 
       ipv4_address: 
-        ipv4_address: '{ORDER_IP}'
+        ipv4_address: '${ORDER_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
@@ -83,7 +83,7 @@ services:
       - './flask_app/payment:/app'
     networks: 
       ipv4_address: 
-        ipv4_address: '{PAYMENT_IP}'
+        ipv4_address: '${PAYMENT_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
