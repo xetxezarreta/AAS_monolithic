@@ -10,7 +10,7 @@ services:
     volumes:
       - './flask_app/client:/app'
     networks: 
-      ipv4_address: 
+      lb4_network: 
         ipv4_address: '${CLIENT_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
@@ -28,7 +28,7 @@ services:
     volumes:
       - './flask_app/delivery:/app'
     networks: 
-      ipv4_address: 
+      lb4_network: 
         ipv4_address: '${DELIVERY_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
@@ -46,7 +46,7 @@ services:
     volumes:
       - './flask_app/machine:/app'
     networks: 
-      ipv4_address: 
+      lb4_network: 
         ipv4_address: '${MACHINE_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
@@ -64,7 +64,7 @@ services:
     volumes:
       - './flask_app/order:/app'
     networks: 
-      ipv4_address: 
+      lb4_network: 
         ipv4_address: '${ORDER_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
@@ -82,7 +82,7 @@ services:
     volumes:
       - './flask_app/payment:/app'
     networks: 
-      ipv4_address: 
+      lb4_network: 
         ipv4_address: '${PAYMENT_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
@@ -102,7 +102,7 @@ services:
       - '${HAPROXY_PORT}'
       - '${HAPROXY_STATS_PORT}'
     networks:
-      lb7_network:
+      lb4_network:
         ipv4_address: '${HAPROXY_IP}'
     environment:
       - 'HAPROXY_PORT=${HAPROXY_PORT}'
