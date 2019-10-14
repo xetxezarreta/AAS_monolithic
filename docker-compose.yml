@@ -122,7 +122,7 @@ services:
       MYSQL_PASSWORD: '${MYSQL_PASSWORD}'
       MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD}'
 networks:
-  lb7_network:
+  lb4_network:
     driver: bridge
     ipam:
       driver: default
