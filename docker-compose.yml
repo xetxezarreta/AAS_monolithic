@@ -9,6 +9,9 @@ services:
       - '13000:${GUNICORN_PORT}'
     volumes:
       - './flask_app/client:/app'
+    networks: 
+      lb4_network: 
+        ipv4_address: '${CLIENT_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
@@ -24,6 +27,9 @@ services:
       - '14000:${GUNICORN_PORT}'
     volumes:
       - './flask_app/delivery:/app'
+    networks: 
+      lb4_network: 
+        ipv4_address: '${DELIVERY_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
@@ -39,6 +45,9 @@ services:
       - '15000:${GUNICORN_PORT}'
     volumes:
       - './flask_app/machine:/app'
+    networks: 
+      lb4_network: 
+        ipv4_address: '${MACHINE_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
@@ -54,6 +63,9 @@ services:
       - '16000:${GUNICORN_PORT}'
     volumes:
       - './flask_app/order:/app'
+    networks: 
+      lb4_network: 
+        ipv4_address: '${ORDER_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
@@ -69,12 +81,43 @@ services:
       - '17000:${GUNICORN_PORT}'
     volumes:
       - './flask_app/payment:/app'
+    networks: 
+      lb4_network: 
+        ipv4_address: '${PAYMENT_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
+  # ---------------------------------------------------
+  # HAPROXY
+  # ---------------------------------------------------
+  haproxy:
+    build: ./flask_app/haproxy
+    ports:
+      - '${HAPROXY_PORT}:${HAPROXY_PORT}'
+      - '${HAPROXY_STATS_PORT}:${HAPROXY_STATS_PORT}'
+    expose:
+      - '${HAPROXY_PORT}'
+      - '${HAPROXY_STATS_PORT}'
+    networks:
+      lb4_network:
+        ipv4_address: '${HAPROXY_IP}'
+    environment:
+      - 'CLIENT_IP=${CLIENT_IP}'
+      - 'CLIENT_PORT=${GUNICORN_PORT}'
+      - 'DELIVERY_IP=${DELIVERY_IP}'
+      - 'DELIVERY_PORT=${GUNICORN_PORT}'
+      - 'ORDER_IP=${ORDER_IP}'
+      - 'ORDER_PORT=${GUNICORN_PORT}'
+      - 'MACHINE_IP=${MACHINE_IP}'
+      - 'MACHINE_PORT=${GUNICORN_PORT}'
+      - 'PAYMENT_IP=${PAYMENT_IP}'
+      - 'PAYMENT_PORT=${GUNICORN_PORT}'
+      - 'HAPROXY_PORT=${HAPROXY_PORT}'
+      - 'HAPROXY_STATS_PORT=${HAPROXY_STATS_PORT}'
+    restart: unless-stopped
   # ---------------------------------------------------
   # DATABASE
   # ---------------------------------------------------
@@ -88,4 +131,11 @@ services:
       MYSQL_USER: '${MYSQL_USER}'
       MYSQL_PASSWORD: '${MYSQL_PASSWORD}'
       MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD}'
+networks:
+  lb4_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: '${NETWORK_SUBNET}'
 

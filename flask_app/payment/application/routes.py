@@ -16,7 +16,7 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 #	"userId": 1,
 #	"money": 100
 #}
-@app.route('/deposit', methods=['POST'])
+@app.route('/payment/deposit', methods=['POST'])
 def perform_deposit():    
     session = Session()
     new_payment = None
@@ -54,7 +54,7 @@ def perform_deposit():
 #	"userId": 1,
 #	"money": 100  #Dinero a cobrar siempre en positivo para luego restar!!
 #}
-@app.route('/payment', methods=['POST'])
+@app.route('/payment/pay', methods=['POST'])
 def request_payment():    
     session = Session()
 
@@ -103,7 +103,7 @@ def get_payment_response(status):
     return response
 
 # Database clean #######################################################################################################
-@app.route('/clean_payment', methods=['GET'])
+@app.route('/payment/clean_payment', methods=['GET'])
 def clean_payments_database():
     session = Session()
     session.query(Payment).delete()

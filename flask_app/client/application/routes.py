@@ -6,7 +6,7 @@ import traceback
 from . import Session
 
 # Client Routes #########################################################################################################
-@app.route('/client', methods=['POST'])
+@app.route('/client/create', methods=['POST'])
 def create_client():
     session = Session()
     new_client= None

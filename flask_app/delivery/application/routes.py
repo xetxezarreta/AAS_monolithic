@@ -13,7 +13,7 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 #	"orderId": 1,
 #	"delivered": false
 #}
-@app.route('/create_delivery', methods=['POST'])
+@app.route('/delivery/create', methods=['POST'])
 def create_delivery():
     session = Session()
     new_delivery = None
@@ -48,7 +48,7 @@ def create_delivery():
 #	"orderId": 1,
 #	"delivered": true
 #}
-@app.route('/update_delivery', methods=['POST'])
+@app.route('/delivery/update', methods=['POST'])
 def update_delivery():
     session = Session()    
     if request.headers['Content-Type'] != 'application/json':
@@ -76,7 +76,7 @@ def update_delivery():
     session.close()
     return response
 
-@app.route('/deliveries', methods=['GET'])
+@app.route('/delivery/deliveries', methods=['GET'])
 def view_deliveries():
     session = Session()
     print("GET All Deliveries.")
@@ -86,7 +86,7 @@ def view_deliveries():
     return response
 
 # Database clean #######################################################################################################
-@app.route('/clean_delivery', methods=['GET'])
+@app.route('/delivery/clean_delivery', methods=['GET'])
 def clean_payments_database():
     session = Session()
     session.query(Delivery).delete()
