@@ -6,7 +6,7 @@ services:
   client:
     build: ./flask_app
     ports:
-      - '13000:13000'
+      - '13000:${GUNICORN_PORT}'
     volumes:
       - './flask_app/client:/app'
     networks: 
@@ -24,7 +24,7 @@ services:
   delivery:
     build: ./flask_app
     ports:
-      - '14000:14000'
+      - '14000:${GUNICORN_PORT}'
     volumes:
       - './flask_app/delivery:/app'
     networks: 
@@ -42,7 +42,7 @@ services:
   machine:
     build: ./flask_app
     ports:
-      - '15000:15000'
+      - '15000:${GUNICORN_PORT}'
     volumes:
       - './flask_app/machine:/app'
     networks: 
@@ -60,7 +60,7 @@ services:
   order:
     build: ./flask_app
     ports:
-      - '16000:16000'
+      - '16000:${GUNICORN_PORT}'
     volumes:
       - './flask_app/order:/app'
     networks: 
@@ -78,7 +78,7 @@ services:
   payment:
     build: ./flask_app
     ports:
-      - '17000:17000'
+      - '17000:${GUNICORN_PORT}'
     volumes:
       - './flask_app/payment:/app'
     networks: 
@@ -105,6 +105,13 @@ services:
       lb4_network:
         ipv4_address: '${HAPROXY_IP}'
     environment:
+      - 'CLIENT_IP=${CLIENT_IP}'
+      - 'CLIENT_PORT=${GUNICORN_PORT}'
+      - 'DELIVERY_IP=${DELIVERY_IP}'
+      - 'DELIVERY_PORT=${GUNICORN_PORT}'
+      - 'ORDER_IP=${ORDER_IP}'
+      - 'ORDER_PORT=${GUNICORN_PORT}'
+      - 'CLIENT_PORT='
       - 'HAPROXY_PORT=${HAPROXY_PORT}'
       - 'HAPROXY_STATS_PORT=${HAPROXY_STATS_PORT}'
     restart: unless-stopped
