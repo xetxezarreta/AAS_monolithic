@@ -111,6 +111,10 @@ services:
       - 'DELIVERY_PORT=${GUNICORN_PORT}'
       - 'ORDER_IP=${ORDER_IP}'
       - 'ORDER_PORT=${GUNICORN_PORT}'
+      - 'MACHINE_IP=${MACHINE_IP}'
+      - 'MACHINE_PORT=${GUNICORN_PORT}'
+      - 'PAYMENT_IP=${PAYMENT_IP}'
+      - 'PAYMENT_PORT=${GUNICORN_PORT}'
       - 'HAPROXY_PORT=${HAPROXY_PORT}'
       - 'HAPROXY_STATS_PORT=${HAPROXY_STATS_PORT}'
     restart: unless-stopped
