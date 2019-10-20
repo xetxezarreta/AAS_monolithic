@@ -12,7 +12,7 @@ import requests
 #   "userId" : 1    
 #   "number_of_pieces" : 2,
 #}
-@app.route('/create_order', methods=['POST'])
+@app.route('/order/create', methods=['POST'])
 def create_order():
     session = Session()
     if request.headers['Content-Type'] != 'application/json':
@@ -30,7 +30,8 @@ def create_order():
         payment = {}
         payment['userId'] = content['userId']
         payment['money'] = 10 * new_order.number_of_pieces # 10 por pieza
-        payment_response = requests.post('http://localhost:17000/payment', json=payment).json()  
+        # payment_response = requests.post('http://localhost:17000/payment', json=payment).json()  
+        payment_response = requests.post('http://192.168.17.3:32700/payment/pay', json=payment).json()
 
         if payment_response['status']:
             print("bien")
@@ -38,12 +39,14 @@ def create_order():
             manufacture_info = {}
             manufacture_info['number_of_pieces'] = new_order.number_of_pieces
             manufacture_info['orderId'] = new_order.id
-            response = requests.post('http://localhost:15000/machine/request_piece', json=manufacture_info).json()
+            # response = requests.post('http://localhost:15000/machine/request_piece', json=manufacture_info).json()
+            response = requests.post('http://192.168.17.3:32700/machine/request_piece', json=manufacture_info).json()
             # Crear el delivery
             delivery_info = {}
             delivery_info['orderId'] = new_order.id
             delivery_info['delivered'] = False
-            requests.post('http://localhost:14000/create_delivery', json=delivery_info).json()
+            # requests.post('http://localhost:14000/create_delivery', json=delivery_info).json()
+            requests.post('http://192.168.17.3:32700/delivery/create', json=delivery_info).json()
         else:
             print("mal") 
             response = payment_response   
@@ -60,7 +63,7 @@ def create_order():
 #{
 #    "orderId": 1
 #}
-@app.route('/notify_piece', methods=['POST'])
+@app.route('/order/notify', methods=['POST'])
 def notify_piece():
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
@@ -70,7 +73,8 @@ def notify_piece():
     delivery_update['orderId'] = content['orderId']
     delivery_update['delivered'] = True
 
-    response = requests.post('http://localhost:14000/update_delivery', json=delivery_update).json()
+    # response = requests.post('http://localhost:14000/update_delivery', json=delivery_update).json()
+    response = requests.post('http://192.168.17.3:32700/delivery/update', json=delivery_update).json()
     print(response)  
     return response
 

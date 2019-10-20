@@ -99,7 +99,8 @@ class Machine(Thread):
             print("order finished")
             order_finished = {}
             order_finished['orderId'] = self.working_piece.orderId
-            requests.post('http://localhost:16000/notify_piece', json=order_finished)           
+            # requests.post('http://localhost:16000/notify_piece', json=order_finished)  
+            requests.post('http://192.168.17.3:32700/order/notify', json=order_finished)       
 
         self.thread_session.commit()
         self.thread_session.flush()
