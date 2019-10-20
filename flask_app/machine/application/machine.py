@@ -5,9 +5,7 @@ from .models import Piece
 from threading import Thread, Lock, Event
 import sqlalchemy
 from . import Session
-from flask import request
-import requests
-
+from .calls import request_order_finished
 
 class Machine(Thread):
     STATUS_WAITING = "Waiting"
@@ -89,18 +87,11 @@ class Machine(Thread):
             if piece.orderId == self.working_piece.orderId:
                 if piece.status != Piece.STATUS_MANUFACTURED:
                     print("order not finished")
-                    order_finished = False
-
-        #for piece in self.working_piece.order.pieces:
-        #    if piece.status != Piece.STATUS_MANUFACTURED:
-        #        order_finished = False
+                    order_finished = False        
 
         if order_finished:            
             print("order finished")
-            order_finished = {}
-            order_finished['orderId'] = self.working_piece.orderId
-            # requests.post('http://localhost:16000/notify_piece', json=order_finished)  
-            requests.post('http://192.168.17.3:32700/order/notify', json=order_finished)       
+            request_order_finished(self.working_piece.orderId)                   
 
         self.thread_session.commit()
         self.thread_session.flush()

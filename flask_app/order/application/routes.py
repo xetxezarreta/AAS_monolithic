@@ -5,7 +5,7 @@ from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, Unsup
 import traceback
 from . import Session
 import requests
-
+from .calls import request_payment, request_pieces_manufacture, request_create_delivery, request_update_delivery
 
 # Order Routes #########################################################################################################
 #{
@@ -27,26 +27,14 @@ def create_order():
         session.add(new_order) 
         session.commit()
 
-        payment = {}
-        payment['userId'] = content['userId']
-        payment['money'] = 10 * new_order.number_of_pieces # 10 por pieza
-        # payment_response = requests.post('http://localhost:17000/payment', json=payment).json()  
-        payment_response = requests.post('http://192.168.17.3:32700/payment/pay', json=payment).json()
+        payment_response =  request_payment(content['userId'], new_order.number_of_pieces)        
 
         if payment_response['status']:
             print("bien")
             # Mandar piezas al machine
-            manufacture_info = {}
-            manufacture_info['number_of_pieces'] = new_order.number_of_pieces
-            manufacture_info['orderId'] = new_order.id
-            # response = requests.post('http://localhost:15000/machine/request_piece', json=manufacture_info).json()
-            response = requests.post('http://192.168.17.3:32700/machine/request_piece', json=manufacture_info).json()
+            response = request_pieces_manufacture(new_order.id, new_order.number_of_pieces)
             # Crear el delivery
-            delivery_info = {}
-            delivery_info['orderId'] = new_order.id
-            delivery_info['delivered'] = False
-            # requests.post('http://localhost:14000/create_delivery', json=delivery_info).json()
-            requests.post('http://192.168.17.3:32700/delivery/create', json=delivery_info).json()
+            request_create_delivery(new_order.id)
         else:
             print("mal") 
             response = payment_response   
@@ -69,13 +57,9 @@ def notify_piece():
         abort(UnsupportedMediaType.code)
     content = request.json
 
-    delivery_update = {}
-    delivery_update['orderId'] = content['orderId']
-    delivery_update['delivered'] = True
-
-    # response = requests.post('http://localhost:14000/update_delivery', json=delivery_update).json()
-    response = requests.post('http://192.168.17.3:32700/delivery/update', json=delivery_update).json()
+    response = request_update_delivery(content['orderId'])   
     print(response)  
+
     return response
 
 # Error Handling #######################################################################################################
