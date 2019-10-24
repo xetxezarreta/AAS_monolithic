@@ -91,6 +91,14 @@ services:
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
   # ---------------------------------------------------
+  # RABBITMQ
+  # ---------------------------------------------------
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+  # ---------------------------------------------------
   # HAPROXY
   # ---------------------------------------------------
   haproxy:
