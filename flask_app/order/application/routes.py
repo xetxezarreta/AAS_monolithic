@@ -10,7 +10,7 @@ from .calls import request_payment, request_pieces_manufacture, request_create_d
 import pika
 @app.route('/rabbit-test', methods=['GET'])
 def rabbit_test():
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost:5672'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='192.168.17.4:5672'))
     channel = connection.channel()
 
     channel.exchange_declare(exchange='payment_exchange', exchange_type='direct')
