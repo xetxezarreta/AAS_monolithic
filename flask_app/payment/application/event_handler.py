@@ -14,22 +14,16 @@ class Rabbit():
         # Queues declare
         self.declare_queue(exchange_name, 'payment_queue')        
         # Thread
-        self.internal_lock = threading.Lock()
-        thread = threading.Thread(target=self.run_rabbit)
-        thread.setDaemon(True)
-        thread.start()
+        thread = threading.Thread(target=self.channel.start_consuming)
+        thread.start()     
+        thread.join(0)
     
     def declare_queue(self, exchange_name, routing_key):
         result = self.channel.queue_declare(queue='', exclusive=True)
         queue_name = result.method.queue
         self.channel.queue_bind(exchange=exchange_name, queue=queue_name, routing_key=routing_key)
         self.channel.basic_consume(queue=queue_name, on_message_callback=self.callback, auto_ack=True)
-        self.channel.start_consuming()
-    
-    def run_rabbit(self):
-        while True:
-            sleep(0.1)
-            pass           
+        #self.channel.start_consuming()               
     
     # 'Payment' queue callback
     @staticmethod
