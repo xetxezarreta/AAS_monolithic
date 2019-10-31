@@ -18,7 +18,7 @@ def rabbit_test():
 
     channel.exchange_declare(exchange='payment_exchange', exchange_type='direct')
     message = 'hola alvaro'
-    channel.basic_publish(exchange='direct_logs', routing_key='payment_queue', body=message)
+    channel.basic_publish(exchange='payment_exchange', routing_key='payment_queue', body=message)
     connection.close()
     return "OK"
 
