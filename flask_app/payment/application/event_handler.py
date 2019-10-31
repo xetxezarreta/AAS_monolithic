@@ -11,6 +11,7 @@ class Rabbit(Thread):
         self.channel.exchange_declare(exchange=exchange_name, exchange_type='direct')
         # Queues declare
         self.declare_queue(exchange_name, 'payment_queue')        
+        self.start()
     
     def declare_queue(self, exchange_name, routing_key):
         result = self.channel.queue_declare(queue='', exclusive=True)
@@ -18,6 +19,10 @@ class Rabbit(Thread):
         self.channel.queue_bind(exchange=exchange_name, queue=queue_name, routing_key=routing_key)
         self.channel.basic_consume(queue=queue_name, on_message_callback=self.callback, auto_ack=True)
         self.channel.start_consuming()
+    
+    def run(self):
+        while True:
+            pass
     
     # 'Payment' queue callback
     @staticmethod
