@@ -1,9 +1,9 @@
 import pika
-from threading import Thread
+import threading
+from time import sleep
 
-class Rabbit(Thread):
+class Rabbit():
     def __init__(self):  
-        Thread.__init__(self)
         # Rabbit config
         exchange_name = 'payment_exchange'
         connection = pika.BlockingConnection(pika.ConnectionParameters(host='192.168.17.4:5672'))    
@@ -11,7 +11,11 @@ class Rabbit(Thread):
         self.channel.exchange_declare(exchange=exchange_name, exchange_type='direct')
         # Queues declare
         self.declare_queue(exchange_name, 'payment_queue')        
-        self.start()
+        #Thread
+        self.internal_lock = threading.Lock()
+        thread = threading.Thread(target=self.run_rabbit)
+        thread.setDaemon(True)
+        thread.start()
     
     def declare_queue(self, exchange_name, routing_key):
         result = self.channel.queue_declare(queue='', exclusive=True)
@@ -20,9 +24,10 @@ class Rabbit(Thread):
         self.channel.basic_consume(queue=queue_name, on_message_callback=self.callback, auto_ack=True)
         self.channel.start_consuming()
     
-    def run(self):
+    def run_rabbit(self):
         while True:
-            pass
+            sleep(0.1)
+            pass           
     
     # 'Payment' queue callback
     @staticmethod
