@@ -1,6 +1,17 @@
 version: '3.1'
 services:
   # ---------------------------------------------------
+  # RABBITMQ
+  # ---------------------------------------------------
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    networks: 
+      lb4_network: 
+        ipv4_address: '${RABBIT_IP}'
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+  # ---------------------------------------------------
   # CLIENT
   # ---------------------------------------------------
   client:
@@ -90,17 +101,6 @@ services:
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
-  # ---------------------------------------------------
-  # RABBITMQ
-  # ---------------------------------------------------
-  rabbitmq:
-    image: "rabbitmq:3-management"
-    networks: 
-      lb4_network: 
-        ipv4_address: '${RABBIT_IP}'
-    ports:
-      - '5672:5672'
-      - '15672:15672'
   # ---------------------------------------------------
   # HAPROXY
   # ---------------------------------------------------
