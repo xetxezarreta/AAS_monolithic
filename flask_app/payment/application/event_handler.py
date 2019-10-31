@@ -6,12 +6,13 @@ class Rabbit():
     def __init__(self):  
         # Rabbit config
         exchange_name = 'payment_exchange'
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host='192.168.17.4:15672'))    
+        #connection = pika.BlockingConnection(pika.ConnectionParameters(host='192.168.17.4:5672'))    
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host='amqp://guest:guest@192.168.17.4:5672/%2F')) 
         self.channel = connection.channel()  
         self.channel.exchange_declare(exchange=exchange_name, exchange_type='direct')
         # Queues declare
         self.declare_queue(exchange_name, 'payment_queue')        
-        #Thread
+        # Thread
         self.internal_lock = threading.Lock()
         thread = threading.Thread(target=self.run_rabbit)
         thread.setDaemon(True)
