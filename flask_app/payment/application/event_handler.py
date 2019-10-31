@@ -6,7 +6,7 @@ class Rabbit():
     def __init__(self):  
         # Rabbit config
         exchange_name = 'payment_exchange'
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host='192.168.17.4:5672'))    
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host='192.168.17.4:15672'))    
         self.channel = connection.channel()  
         self.channel.exchange_declare(exchange=exchange_name, exchange_type='direct')
         # Queues declare
