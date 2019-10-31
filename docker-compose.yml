@@ -7,7 +7,7 @@ services:
     image: "rabbitmq:3-management"
     networks: 
       lb4_network: 
-        ipv4_address: '${RABBIT_IP}'
+        ipv4_address: '192.168.17.4'
     ports:
       - '5672:5672'
       - '15672:15672'
