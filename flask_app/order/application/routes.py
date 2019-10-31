@@ -13,13 +13,14 @@ def rabbit_test():
     credentials = pika.PlainCredentials('guest', 'guest')
     parameters = pika.ConnectionParameters('192.168.17.4', 5672, '/', credentials)
     connection = pika.BlockingConnection(parameters) 
-    
+
     channel = connection.channel()
 
     channel.exchange_declare(exchange='payment_exchange', exchange_type='direct')
     message = 'hola alvaro'
     channel.basic_publish(exchange='direct_logs', routing_key='payment_queue', body=message)
     connection.close()
+    return "OK"
 
 # Order Routes #########################################################################################################
 #{
