@@ -6,6 +6,7 @@ from threading import Thread, Lock, Event
 import sqlalchemy
 from . import Session
 from .calls import request_order_finished
+from .event_publisher import send_message
 
 class Machine(Thread):
     STATUS_WAITING = "Waiting"
@@ -91,7 +92,9 @@ class Machine(Thread):
 
         if order_finished:            
             print("order finished")
-            request_order_finished(self.working_piece.orderId)                   
+            order_finished = {}
+            order_finished['orderId'] = self.working_piece.orderId            
+            send_message("order_exchange", "machine_queue", order_finished)                                
 
         self.thread_session.commit()
         self.thread_session.flush()

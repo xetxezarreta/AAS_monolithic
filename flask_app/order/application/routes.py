@@ -6,21 +6,8 @@ import traceback
 from . import Session
 import requests
 from .calls import request_payment, request_pieces_manufacture, request_create_delivery, request_update_delivery
-
 import pika
-@app.route('/rabbit-test', methods=['GET'])
-def rabbit_test():
-    credentials = pika.PlainCredentials('guest', 'guest')
-    parameters = pika.ConnectionParameters('192.168.17.4', 5672, '/', credentials)
-    connection = pika.BlockingConnection(parameters) 
-
-    channel = connection.channel()
-
-    channel.exchange_declare(exchange='payment_exchange', exchange_type='direct')
-    message = 'hola alvaro'
-    channel.basic_publish(exchange='payment_exchange', routing_key='payment_queue', body=message)
-    connection.close()
-    return "OK"
+from .event_publisher import send_message
 
 # Order Routes #########################################################################################################
 #{
@@ -42,18 +29,12 @@ def create_order():
         session.add(new_order) 
         session.commit()
 
-        payment_response =  request_payment(content['userId'], new_order.number_of_pieces)        
-
-        if payment_response['status']:
-            print("bien")
-            # Mandar piezas al machine
-            response = request_pieces_manufacture(new_order.id, new_order.number_of_pieces)
-            # Crear el delivery
-            request_create_delivery(new_order.id)
-        else:
-            print("mal") 
-            response = payment_response   
-  
+        # payment_response =  request_payment(content['userId'], new_order.number_of_pieces)      
+        payment = {}
+        payment['orderId'] = content['orderId']
+        payment['userId'] = content['userId']
+        payment['money'] = 10 * new_order.number_of_pieces # 10 por pieza 
+        send_message("payment_exchange", "payment_queue", payment)  
     except KeyError:
         session.rollback()
         session.close()
