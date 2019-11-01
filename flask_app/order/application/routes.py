@@ -30,8 +30,10 @@ def create_order():
         session.commit()
 
         # payment_response =  request_payment(content['userId'], new_order.number_of_pieces)      
+        print("ORDER HOLA", flush=True)
+        print(str(new_order.id), flush=True)
         payment = {}
-        payment['orderId'] = content['orderId']
+        payment['orderId'] = new_order.id
         payment['userId'] = content['userId']
         payment['money'] = 10 * new_order.number_of_pieces # 10 por pieza 
         send_message("payment_exchange", "payment_queue", payment)  
