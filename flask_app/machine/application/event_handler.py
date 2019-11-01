@@ -1,11 +1,12 @@
+from . import Session
 import pika
 import threading
-from . import Session
 from .models import Piece
 from werkzeug.exceptions import BadRequest
 from flask import abort
 from .event_publisher import send_message
 from .machine import Machine
+
 
 my_machine = Machine()
 
