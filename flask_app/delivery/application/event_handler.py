@@ -1,11 +1,11 @@
 import pika
 import threading
-from . import Session
 from .models import Delivery
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound 
 from flask import abort
 from .event_publisher import send_message
+from . import Session
 
 class Rabbit():
     def __init__(self):  
