@@ -28,6 +28,7 @@ class Rabbit():
     # 'Payment' queue callback
     @staticmethod
     def callback(ch, method, properties, body):
+        print("Hello world!")
         print(" [x] %r:%r" % (method.routing_key, body))
 
 
