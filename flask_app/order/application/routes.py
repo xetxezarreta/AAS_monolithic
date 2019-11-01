@@ -10,6 +10,7 @@ from .calls import request_payment, request_pieces_manufacture, request_create_d
 import pika
 @app.route('/rabbit-test', methods=['GET'])
 def rabbit_test():
+    print("HEEEEEEEEEEEEEELO")
     credentials = pika.PlainCredentials('guest', 'guest')
     parameters = pika.ConnectionParameters('192.168.17.4', 5672, '/', credentials)
     connection = pika.BlockingConnection(parameters) 
