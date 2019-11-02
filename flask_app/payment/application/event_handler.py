@@ -6,6 +6,7 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from flask import abort
 from .event_publisher import send_message
 from . import Session
+import json
 
 class Rabbit():
     def __init__(self):  
@@ -21,7 +22,7 @@ class Rabbit():
         # Thread
         thread = threading.Thread(target=self.channel.start_consuming)
         thread.start()     
-        thread.join(0)
+        #thread.join(0)
     
     def __declare_queue(self, exchange_name, routing_key):
         result = self.channel.queue_declare(queue='', exclusive=True)
@@ -40,7 +41,7 @@ class Rabbit():
     def payment_callback(self, ch, method, properties, body):
         session = Session()        
         status = True
-        content = body
+        content = json.loads(body)
         try:
             payment = Payment(
                 userId=content['userId'],

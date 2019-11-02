@@ -1,4 +1,5 @@
 import pika
+import json
 
 def send_message(exchange, routing_key, message):
     credentials = pika.PlainCredentials('guest', 'guest')
@@ -7,5 +8,5 @@ def send_message(exchange, routing_key, message):
     channel = connection.channel()
 
     channel.exchange_declare(exchange=exchange, exchange_type='direct')
-    channel.basic_publish(exchange=exchange, routing_key=routing_key, body=message)
+    channel.basic_publish(exchange=exchange, routing_key=routing_key, body=json.dumps(message))
     connection.close()
