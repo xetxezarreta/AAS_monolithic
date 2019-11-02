@@ -36,18 +36,17 @@ class Rabbit():
         session = Session()
         new_delivery = None
         content = json.loads(body)
+        print(content, flush=True)
 
         try:
             new_delivery = Delivery(
                 orderId = content['orderId'],
-                delivered = content['delivered']
+                delivered = content['delivered'],
             )
             session.add(new_delivery)   
-            print(new_delivery)     
             session.commit()
         except KeyError:
             session.rollback()
-        
         session.close()
 
     # Update delivery callback

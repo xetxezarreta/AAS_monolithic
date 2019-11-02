@@ -30,12 +30,12 @@ class Rabbit():
         self.channel.queue_bind(exchange=exchange_name, queue=queue_name, routing_key=routing_key)
         self.channel.basic_consume(queue=queue_name, on_message_callback=self.payment_callback, auto_ack=True)
     
-    def __get_payment_response(self, status, payment):
+    def __get_payment_response(self, status, userId, orderId):
         response = {}
         response['status'] = status
-        if payment != None:
-            response['userId'] = payment.userId
-            response['orderId'] = payment.orderId
+        if status:
+            response['userId'] = userId
+            response['orderId'] = orderId
         return response
     
     # Payment callback
@@ -45,27 +45,24 @@ class Rabbit():
         print(body, flush=True)
         content = json.loads(body)
         print(content, flush=True)
-        response = None
+        status = True
         payment = None
 
-        try:
-            status = True
+        try:            
             payment = Payment(
                 userId=content['userId'],
-                orderId=content['orderId'],
                 money=content['money'],         
             )     
             user = session.query(Payment).filter(Payment.userId == payment.userId).one()
             if user.money < payment.money:
                 raise NoResultFound("No tiene dinero suficiente")
             user.money -= payment.money  
-            session.commit()
-            print(user)    
+            session.commit() 
         except:
             status = False
-            session.rollback()
+            session.rollback()       
         
-        response = self.__get_payment_response(status, payment)              
+        response = self.__get_payment_response(status, payment.userId, content['orderId'])        
         send_message("order_exchange", "payment_queue", response)
         session.close()
         

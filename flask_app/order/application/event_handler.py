@@ -46,21 +46,19 @@ class Rabbit():
     # Payment callback
     @staticmethod
     def payment_callback(ch, method, properties, body):
-        print("ORDER-payment callback", flush=True)
+        print("ORDER-payment callback", flush=True)        
         session = Session()
         content = json.loads(body)        
-                    
         if content['status']:
-            print("bien", flush=True)
             order = session.query(Order).filter(Order.id == content['orderId']).one()
             # Mandar piezas al machine
             manufacture_info = {}
-            manufacture_info['orderId'] = order['id'] 
-            manufacture_info['number_of_pieces'] = order['number_of_pieces'] 
+            manufacture_info['orderId'] = order.id
+            manufacture_info['number_of_pieces'] = order.number_of_pieces
             send_message("machine_exchange", "machine_queue", manufacture_info)                
             # Crear el delivery
             delivery_info = {}
-            delivery_info['orderId'] = order['id']
+            delivery_info['orderId'] = order.id
             delivery_info['delivered'] = False
             send_message("delivery_exchange", "create_delivery_queue", delivery_info)
         else:
