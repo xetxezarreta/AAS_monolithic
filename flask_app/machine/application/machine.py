@@ -5,7 +5,6 @@ from .models import Piece
 from threading import Thread, Lock, Event
 import sqlalchemy
 from . import Session
-from .calls import request_order_finished
 from .event_publisher import send_message
 
 class Machine(Thread):

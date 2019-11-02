@@ -5,7 +5,6 @@ from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, Unsup
 import traceback
 from . import Session
 import requests
-from .calls import request_payment, request_pieces_manufacture, request_create_delivery, request_update_delivery
 import pika
 from .event_publisher import send_message
 
@@ -44,21 +43,6 @@ def create_order():
 
     session.close()
     return get_order_response(status)
-
-# Machine notifica para actualizar delivery.
-#{
-#    "orderId": 1
-#}
-@app.route('/order/notify', methods=['POST'])
-def notify_piece():
-    if request.headers['Content-Type'] != 'application/json':
-        abort(UnsupportedMediaType.code)
-    content = request.json
-
-    response = request_update_delivery(content['orderId'])   
-    print(response)  
-
-    return response
 
 # Respuesta del POST del order.
 # EJEMPLO:

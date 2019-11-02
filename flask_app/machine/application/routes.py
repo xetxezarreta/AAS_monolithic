@@ -9,47 +9,6 @@ from . import Session
 my_machine = Machine()
 
 # Machine Routes #######################################################################################################
-# Obtiene la pieza y la cantidad que tiene que fabricar.
-# Devuelve 'true' si se han añadido piezas.
-# Devuelve 'false' si no se han añadido piezas.
-#{
-#    "number_of_pieces": 3,
-#    "orderId": 1
-#}
-@app.route('/machine/request_piece', methods=['POST'])
-def request_piece_mannufacturing():
-    session = Session()
-    if request.headers['Content-Type'] != 'application/json':
-        abort(UnsupportedMediaType.code)
-    content = request.json
-    status = False
-    try:
-        number_of_pieces = content['number_of_pieces']
-        orderId = content['orderId']
-
-        pieces_list = list()
-        for _ in range(number_of_pieces):
-            piece = Piece()
-            piece.orderId = orderId            
-            session.add(piece)    
-            session.commit()     
-            session.refresh(piece)
-            print(piece)      
-            pieces_list.append(piece)
-
-        if pieces_list: # miramos si hay elemento en la lista.
-            my_machine.add_pieces_to_queue(pieces_list)
-            status = True
-        
-    except KeyError:
-        session.rollback()
-        session.close()
-        abort(BadRequest.code)
-
-    response = get_machine_response(status)
-    session.close()
-    return response
-
 @app.route('/machine/status', methods=['GET'])
 def view_machine_status():
     working_piece = my_machine.working_piece

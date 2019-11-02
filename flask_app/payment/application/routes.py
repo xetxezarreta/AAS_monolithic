@@ -7,7 +7,6 @@ from . import Session
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound 
 
 # Payment Routes #########################################################################################################
-
 # Este POST deposita el dinero de un usuario.
 # Si el usuario existe, se le suma esa cantidad de dinero.
 # Si el usuario no existe, se genera un nuevo registro con el dinero que se quiere ingresar.
@@ -44,62 +43,6 @@ def perform_deposit():
 
     response = jsonify(new_payment.as_dict())
     session.close()
-    return response
-
-# Este POST cobra un pago a un usuario.
-# Si el usuario existe, se le resta esa cantidad de dinero.
-# Si el usuario no existe o no tiene suficiente dinero, no se puede proceder al pago.
-# Datos esperados en el post:
-#{
-#	"userId": 1,
-#	"money": 100  #Dinero a cobrar siempre en positivo para luego restar!!
-#}
-@app.route('/payment/pay', methods=['POST'])
-def request_payment():    
-    session = Session()
-
-    if request.headers['Content-Type'] != 'application/json':
-        abort(UnsupportedMediaType.code)
-    content = request.json
-
-    status = True
-
-    try:
-        payment = Payment(
-            userId=content['userId'],
-            money=content['money'],         
-        )     
-        try:           
-            user = session.query(Payment).filter(Payment.userId == payment.userId).one()
-            if user.money < payment.money:
-                raise NoResultFound("No tiene dinero suficiente")
-            user.money -= payment.money  
-            session.commit()
-            print(user)
-        except NoResultFound:     
-            print("no tiene dinero") 
-            status = False       
-        finally:
-            response = get_payment_response(status)
-        
-    except KeyError:
-        session.rollback()
-        session.close()
-        abort(BadRequest.code)    
-
-    session.close()
-    return response
-
-# Respuesta del POST del payment.
-# Si se puede realizar el pago, status=True
-# Si no se puede realizar el pago, status=False
-# EJEMPLO:
-#{
-#    "status": true
-#}
-def get_payment_response(status):
-    response = {}
-    response['status'] = status
     return response
 
 # Database clean #######################################################################################################
