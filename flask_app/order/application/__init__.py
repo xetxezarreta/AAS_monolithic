@@ -11,7 +11,6 @@ Session = scoped_session(
                 bind=engine)
         )
 
-
 def create_app():
     """Construct the core application."""
     app = Flask(__name__, instance_relative_config=False)
@@ -19,5 +18,5 @@ def create_app():
     with app.app_context():
         from . import routes
         from . import models
-        models.Base.metadata.create_all(engine)
+        models.Base.metadata.create_all(engine)        
         return app

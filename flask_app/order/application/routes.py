@@ -5,7 +5,8 @@ from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, Unsup
 import traceback
 from . import Session
 import requests
-
+import pika
+from .event_publisher import send_message
 
 # Order Routes #########################################################################################################
 #{
@@ -14,12 +15,13 @@ import requests
 #}
 @app.route('/order/create', methods=['POST'])
 def create_order():
+    print("POST create order", flush=True)
     session = Session()
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
     content = request.json
 
-    response = None
+    status = True
     try:      
         new_order =  Order(
             number_of_pieces = content['number_of_pieces'],         
@@ -27,55 +29,29 @@ def create_order():
         session.add(new_order) 
         session.commit()
 
+        # payment_response =  request_payment(content['userId'], new_order.number_of_pieces)      
         payment = {}
+        payment['orderId'] = new_order.id
         payment['userId'] = content['userId']
-        payment['money'] = 10 * new_order.number_of_pieces # 10 por pieza
-        # payment_response = requests.post('http://localhost:17000/payment', json=payment).json()  
-        payment_response = requests.post('http://192.168.17.3:32700/payment/pay', json=payment).json()
-
-        if payment_response['status']:
-            print("bien")
-            # Mandar piezas al machine
-            manufacture_info = {}
-            manufacture_info['number_of_pieces'] = new_order.number_of_pieces
-            manufacture_info['orderId'] = new_order.id
-            # response = requests.post('http://localhost:15000/machine/request_piece', json=manufacture_info).json()
-            response = requests.post('http://192.168.17.3:32700/machine/request_piece', json=manufacture_info).json()
-            # Crear el delivery
-            delivery_info = {}
-            delivery_info['orderId'] = new_order.id
-            delivery_info['delivered'] = False
-            # requests.post('http://localhost:14000/create_delivery', json=delivery_info).json()
-            requests.post('http://192.168.17.3:32700/delivery/create', json=delivery_info).json()
-        else:
-            print("mal") 
-            response = payment_response   
-  
+        payment['money'] = 10 * new_order.number_of_pieces # 10 por pieza 
+        send_message("payment_exchange", "payment_queue", payment)  
     except KeyError:
+        status = False
         session.rollback()
         session.close()
         abort(BadRequest.code)
 
     session.close()
-    return response
+    return get_order_response(status)
 
-# Machine notifica para actualizar delivery.
+# Respuesta del POST del order.
+# EJEMPLO:
 #{
-#    "orderId": 1
+#    "status": true
 #}
-@app.route('/order/notify', methods=['POST'])
-def notify_piece():
-    if request.headers['Content-Type'] != 'application/json':
-        abort(UnsupportedMediaType.code)
-    content = request.json
-
-    delivery_update = {}
-    delivery_update['orderId'] = content['orderId']
-    delivery_update['delivered'] = True
-
-    # response = requests.post('http://localhost:14000/update_delivery', json=delivery_update).json()
-    response = requests.post('http://192.168.17.3:32700/delivery/update', json=delivery_update).json()
-    print(response)  
+def get_order_response(status):
+    response = {}
+    response['status'] = status
     return response
 
 # Error Handling #######################################################################################################
