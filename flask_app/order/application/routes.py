@@ -16,12 +16,13 @@ from .event_publisher import send_message
 #}
 @app.route('/order/create', methods=['POST'])
 def create_order():
+    print("POST create order", flush=True)
     session = Session()
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
     content = request.json
 
-    response = None
+    status = True
     try:      
         new_order =  Order(
             number_of_pieces = content['number_of_pieces'],         
@@ -30,20 +31,19 @@ def create_order():
         session.commit()
 
         # payment_response =  request_payment(content['userId'], new_order.number_of_pieces)      
-        print("ORDER HOLA", flush=True)
-        print(str(new_order.id), flush=True)
         payment = {}
         payment['orderId'] = new_order.id
         payment['userId'] = content['userId']
         payment['money'] = 10 * new_order.number_of_pieces # 10 por pieza 
         send_message("payment_exchange", "payment_queue", payment)  
     except KeyError:
+        status = False
         session.rollback()
         session.close()
         abort(BadRequest.code)
 
     session.close()
-    return response
+    return get_order_response(status)
 
 # Machine notifica para actualizar delivery.
 #{
@@ -58,6 +58,16 @@ def notify_piece():
     response = request_update_delivery(content['orderId'])   
     print(response)  
 
+    return response
+
+# Respuesta del POST del order.
+# EJEMPLO:
+#{
+#    "status": true
+#}
+def get_order_response(status):
+    response = {}
+    response['status'] = status
     return response
 
 # Error Handling #######################################################################################################

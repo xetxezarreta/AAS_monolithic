@@ -1,3 +1,4 @@
+import sys
 import pika
 import threading
 from .models import Payment
@@ -22,7 +23,6 @@ class Rabbit():
         # Thread
         thread = threading.Thread(target=self.channel.start_consuming)
         thread.start()     
-        #thread.join(0)
     
     def __declare_queue(self, exchange_name, routing_key):
         result = self.channel.queue_declare(queue='', exclusive=True)
@@ -30,41 +30,42 @@ class Rabbit():
         self.channel.queue_bind(exchange=exchange_name, queue=queue_name, routing_key=routing_key)
         self.channel.basic_consume(queue=queue_name, on_message_callback=self.payment_callback, auto_ack=True)
     
-    def __get_payment_response(self, status, userId, orderId):
+    def __get_payment_response(self, status, payment):
         response = {}
         response['status'] = status
-        response['userId'] = userId
-        response['orderId'] = orderId
+        if payment != None:
+            response['userId'] = payment.userId
+            response['orderId'] = payment.orderId
         return response
     
     # Payment callback
     def payment_callback(self, ch, method, properties, body):
-        session = Session()        
-        status = True
+        print("PAYMENT CALLBACK", flush=True)
+        session = Session()               
+        print(body, flush=True)
         content = json.loads(body)
+        print(content, flush=True)
+        response = None
+        payment = None
+
         try:
+            status = True
             payment = Payment(
                 userId=content['userId'],
                 orderId=content['orderId'],
                 money=content['money'],         
             )     
-            try:           
-                user = session.query(Payment).filter(Payment.userId == payment.userId).one()
-                if user.money < payment.money:
-                    raise NoResultFound("No tiene dinero suficiente")
-                user.money -= payment.money  
-                session.commit()
-                print(user)
-            except NoResultFound:     
-                print("no tiene dinero") 
-                status = False       
-            finally:
-                response = self.__get_payment_response(status, payment.userId, payment.orderId)            
-        except KeyError:
+            user = session.query(Payment).filter(Payment.userId == payment.userId).one()
+            if user.money < payment.money:
+                raise NoResultFound("No tiene dinero suficiente")
+            user.money -= payment.money  
+            session.commit()
+            print(user)    
+        except:
+            status = False
             session.rollback()
-            session.close()
-            abort(BadRequest.code)   
-               
-        session.close()
+        
+        response = self.__get_payment_response(status, payment)              
         send_message("order_exchange", "payment_queue", response)
+        session.close()
         

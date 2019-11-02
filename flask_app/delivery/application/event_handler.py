@@ -23,7 +23,6 @@ class Rabbit():
         # Thread
         thread = threading.Thread(target=self.channel.start_consuming)
         thread.start()     
-        #thread.join(0)
     
     def __declare_queue(self, exchange_name, routing_key, callback_func):
         result = self.channel.queue_declare(queue='', exclusive=True)
@@ -33,6 +32,7 @@ class Rabbit():
     
     # Create delivery callback
     def create_delivery_callback(self, ch, method, properties, body):
+        print("DELIVERY CREATE CALLBACK", flush=True)
         session = Session()
         new_delivery = None
         content = json.loads(body)
@@ -47,13 +47,12 @@ class Rabbit():
             session.commit()
         except KeyError:
             session.rollback()
-            session.close()
-            abort(BadRequest.code)   
         
         session.close()
 
     # Update delivery callback
     def update_delivery_callback(self, ch, method, properties, body):
+        print("DELIVERY UPDATE CALLBACK", flush=True)
         session = Session()            
         content = json.loads(body)
 
@@ -68,11 +67,9 @@ class Rabbit():
                 print(delivery)
                 session.commit()
             except NoResultFound:     
-                print("no existe el pedido")       
-            
+                print("no existe el pedido")                  
         except KeyError:
             session.rollback()
-            session.close()
-            abort(BadRequest.code)
+
         session.close()
         
