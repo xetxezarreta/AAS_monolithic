@@ -7,10 +7,13 @@ from . import Session
 import requests
 import pika
 from .event_publisher import send_message
+from .orchestrator import get_orchestrator
+from .state import OrderState
 
 # Order Routes #########################################################################################################
 #{
-#   "userId" : 1    
+#   "userId" : 1,
+#   "zip": '20'
 #   "number_of_pieces" : 2,
 #}
 @app.route('/order/create', methods=['POST'])
@@ -28,13 +31,19 @@ def create_order():
         )    
         session.add(new_order) 
         session.commit()
+         
+        message_info = {}
+        message_info['orderId'] = new_order.id
+        message_info['userId'] = content['userId']
+        message_info['number_of_pieces'] = new_order.number_of_pieces 
+        message_info['zip'] = content['zip'] 
 
-        # payment_response =  request_payment(content['userId'], new_order.number_of_pieces)      
-        payment = {}
-        payment['orderId'] = new_order.id
-        payment['userId'] = content['userId']
-        payment['money'] = 10 * new_order.number_of_pieces # 10 por pieza 
-        send_message("payment_exchange", "payment_queue", payment)  
+        orchestrator = get_orchestrator()
+        order_state = OrderState(message_info['orderId'], message_info['userId'], message_info['number_of_pieces'])
+        orchestrator.order_state_list.append(order_state)
+        
+        send_message("payment_exchange", "payment_reserve_queue", message_info)  
+        send_message("delivery_exchange", "delivery_create_queue", message_info)  
     except KeyError:
         status = False
         session.rollback()

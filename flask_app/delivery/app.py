@@ -2,7 +2,12 @@ from application import create_app
 from application.event_handler import Rabbit
 
 app = create_app()
-Rabbit()
+
+exchange_name = 'delivery_exchange'
+Rabbit(exchange_name, 'delivery_create_queue', Rabbit.delivery_create)
+Rabbit(exchange_name, 'delivery_cancell_queue', Rabbit.delivery_cancell)    
+Rabbit(exchange_name, 'delivery_update_queue', Rabbit.delivery_update)
+    
 app.app_context().push()
 
 if __name__ == "__main__":

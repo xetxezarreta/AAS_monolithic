@@ -7,6 +7,7 @@ from flask import abort
 from .event_publisher import send_message
 from . import Session
 import json
+from .orchestrator import get_orchestrator
 
 class Rabbit():
     def __init__(self, exchange_name, routing_key, callback_func):        
@@ -41,7 +42,7 @@ class Rabbit():
         delivery_info = {}
         delivery_info['orderId'] = content['orderId']
         delivery_info['delivered'] = True
-        send_message("delivery_exchange", "update_delivery_queue", delivery_info)
+        send_message("delivery_exchange", "delivery_update_queue", delivery_info)
 
     # Payment callback
     @staticmethod
@@ -65,7 +66,9 @@ class Rabbit():
             print("mal", flush=True)
         session.close()
 
-    # Delivery callback
+    # Sagas callback
     @staticmethod
-    def delivery_callback(ch, method, properties, body):
-        pass
+    def sagas_callback(ch, method, properties, body):
+        content = json.loads(body)
+        orchestrator = get_orchestrator()
+        orchestrator.treat_message(content)

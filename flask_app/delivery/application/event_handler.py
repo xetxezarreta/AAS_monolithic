@@ -9,49 +9,73 @@ from . import Session
 import json
 
 class Rabbit():
-    def __init__(self):  
-        # Rabbit config
-        exchange_name = 'delivery_exchange'
+    def __init__(self, exchange_name, routing_key, callback_func):        
+        self.exchange_name = exchange_name
+        self.routing_key = routing_key
+        self.callback_func = callback_func
+        self.init_handler()
+
+    def init_handler(self):
+        print(self.routing_key, flush=True)
+        # RabbitConfig
         credentials = pika.PlainCredentials('guest', 'guest')
         parameters = pika.ConnectionParameters('192.168.17.4', 5672, '/', credentials)
-        connection = pika.BlockingConnection(parameters) 
-        self.channel = connection.channel()  
-        self.channel.exchange_declare(exchange=exchange_name, exchange_type='direct')
-        # Queues declare
-        self.__declare_queue(exchange_name, 'create_delivery_queue', self.create_delivery_callback)     
-        self.__declare_queue(exchange_name, 'update_delivery_queue', self.update_delivery_callback)   
-        # Thread
-        thread = threading.Thread(target=self.channel.start_consuming)
-        thread.start()     
-    
-    def __declare_queue(self, exchange_name, routing_key, callback_func):
-        result = self.channel.queue_declare(queue='', exclusive=True)
-        queue_name = result.method.queue
-        self.channel.queue_bind(exchange=exchange_name, queue=queue_name, routing_key=routing_key)
-        self.channel.basic_consume(queue=queue_name, on_message_callback=callback_func, auto_ack=True) 
-    
-    # Create delivery callback
-    def create_delivery_callback(self, ch, method, properties, body):
-        print("DELIVERY CREATE CALLBACK", flush=True)
-        session = Session()
-        new_delivery = None
-        content = json.loads(body)
-        print(content, flush=True)
+        connection = pika.BlockingConnection(parameters)
+        channel = connection.channel()  
+        channel.exchange_declare(exchange=self.exchange_name, exchange_type='direct')
 
-        try:
+        # Create queue
+        result = channel.queue_declare(queue='', exclusive=True)
+        queue_name = result.method.queue
+        channel.queue_bind(exchange=self.exchange_name, queue=queue_name, routing_key=self.routing_key)
+        channel.basic_consume(queue=queue_name, on_message_callback=self.callback_func, auto_ack=True)
+        thread = threading.Thread(target=channel.start_consuming)
+        thread.start()      
+    
+    # Payment reserve
+    @staticmethod
+    def delivery_create(ch, method, properties, body):
+        print("Delivery create callback", flush=True)   
+        session = Session() 
+        content = json.loads(body)
+        status = True
+        
+        try:  
             new_delivery = Delivery(
                 orderId = content['orderId'],
-                delivered = content['delivered'],
+                delivered = False,
             )
-            session.add(new_delivery)   
-            session.commit()
-        except KeyError:
-            session.rollback()
-        session.close()
 
-    # Update delivery callback
-    def update_delivery_callback(self, ch, method, properties, body):
-        print("DELIVERY UPDATE CALLBACK", flush=True)
+            if content['zip'] == '01' or content['zip'] == '20' or content['zip'] == '48':
+                session.add(new_delivery) 
+                session.commit()
+            else:
+                status = False
+        except:
+            status = False
+            session.rollback()   
+             
+        content['status'] = status
+        content['type'] = 'DELIVERY'
+        send_message("order_exchange", "sagas_queue", content)
+        session.close()         
+
+    # Payment reserve cancell
+    @staticmethod
+    def delivery_cancell(ch, method, properties, body):
+        print("Delivery cancell callback", flush=True)        
+        session = Session() 
+        content = json.loads(body)        
+        try:          
+            session.query(Delivery).filter(Delivery.orderId == content['orderId']).one().delete()
+            session.commit() 
+        except:
+            session.rollback()     
+        session.close()  
+
+    @staticmethod
+    def delivery_update(ch, method, properties, body):
+        print("Delivery update callback", flush=True)        
         session = Session()            
         content = json.loads(body)
 
@@ -71,4 +95,3 @@ class Rabbit():
             session.rollback()
 
         session.close()
-        

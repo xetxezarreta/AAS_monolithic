@@ -10,59 +10,66 @@ from . import Session
 import json
 
 class Rabbit():
-    def __init__(self):  
-        # Rabbit config
-        exchange_name = 'payment_exchange'
+    def __init__(self, exchange_name, routing_key, callback_func):        
+        self.exchange_name = exchange_name
+        self.routing_key = routing_key
+        self.callback_func = callback_func
+        self.init_handler()
+
+    def init_handler(self):
+        print(self.routing_key, flush=True)
+        # RabbitConfig
         credentials = pika.PlainCredentials('guest', 'guest')
         parameters = pika.ConnectionParameters('192.168.17.4', 5672, '/', credentials)
-        connection = pika.BlockingConnection(parameters) 
-        self.channel = connection.channel()  
-        self.channel.exchange_declare(exchange=exchange_name, exchange_type='direct')
-        # Queues declare
-        self.__declare_queue(exchange_name, 'payment_queue')        
-        # Thread
-        thread = threading.Thread(target=self.channel.start_consuming)
-        thread.start()     
-    
-    def __declare_queue(self, exchange_name, routing_key):
-        result = self.channel.queue_declare(queue='', exclusive=True)
-        queue_name = result.method.queue
-        self.channel.queue_bind(exchange=exchange_name, queue=queue_name, routing_key=routing_key)
-        self.channel.basic_consume(queue=queue_name, on_message_callback=self.payment_callback, auto_ack=True)
-    
-    def __get_payment_response(self, status, userId, orderId):
-        response = {}
-        response['status'] = status
-        if status:
-            response['userId'] = userId
-            response['orderId'] = orderId
-        return response
-    
-    # Payment callback
-    def payment_callback(self, ch, method, properties, body):
-        print("PAYMENT CALLBACK", flush=True)
-        session = Session()               
-        print(body, flush=True)
-        content = json.loads(body)
-        print(content, flush=True)
-        status = True
-        payment = None
+        connection = pika.BlockingConnection(parameters)
+        channel = connection.channel()  
+        channel.exchange_declare(exchange=self.exchange_name, exchange_type='direct')
 
-        try:            
-            payment = Payment(
-                userId=content['userId'],
-                money=content['money'],         
-            )     
-            user = session.query(Payment).filter(Payment.userId == payment.userId).one()
-            if user.money < payment.money:
+        # Create queue
+        result = channel.queue_declare(queue='', exclusive=True)
+        queue_name = result.method.queue
+        channel.queue_bind(exchange=self.exchange_name, queue=queue_name, routing_key=self.routing_key)
+        channel.basic_consume(queue=queue_name, on_message_callback=self.callback_func, auto_ack=True)
+        thread = threading.Thread(target=channel.start_consuming)
+        thread.start()      
+    
+    # Payment reserve
+    @staticmethod
+    def payment_reserve(ch, method, properties, body):
+        print("Payment reserve callback", flush=True)
+        session = Session() 
+        content = json.loads(body)
+        status = True
+        
+        try:          
+            user = session.query(Payment).filter(Payment.userId == content['userId']).one()
+            money = content['number_of_pieces'] * 10
+            if user.money < money:
                 raise NoResultFound("No tiene dinero suficiente")
-            user.money -= payment.money  
+            user.money -= money
+            user.reserved += money
             session.commit() 
         except:
             status = False
-            session.rollback()       
-        
-        response = self.__get_payment_response(status, payment.userId, content['orderId'])        
-        send_message("order_exchange", "payment_queue", response)
-        session.close()
+            session.rollback()     
+        content['status'] = status
+        content['type'] = 'PAYMENT'
+        send_message("order_exchange", "sagas_queue", content)
+        session.close()         
+
+    # Payment reserve cancell
+    @staticmethod
+    def payment_reserve_cancell(ch, method, properties, body):
+        print("ORDER-payment callback", flush=True)        
+        session = Session() 
+        content = json.loads(body)        
+        try:          
+            user = session.query(Payment).filter(Payment.userId == content['userId']).one()
+            money = content['number_of_pieces'] * 10            
+            user.money += money
+            user.reserved -= money
+            session.commit() 
+        except:
+            session.rollback()     
+        session.close()  
         
