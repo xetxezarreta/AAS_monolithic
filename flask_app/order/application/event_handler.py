@@ -1,11 +1,7 @@
 import pika
 import threading
 from .models import Order
-from werkzeug.exceptions import BadRequest
-from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound 
-from flask import abort
 from .event_publisher import send_message
-from . import Session
 import json
 from .orchestrator import get_orchestrator
 
@@ -42,29 +38,7 @@ class Rabbit():
         delivery_info = {}
         delivery_info['orderId'] = content['orderId']
         delivery_info['delivered'] = True
-        send_message("delivery_exchange", "delivery_update_queue", delivery_info)
-
-    # Payment callback
-    @staticmethod
-    def payment_callback(ch, method, properties, body):
-        print("ORDER-payment callback", flush=True)        
-        session = Session()
-        content = json.loads(body)        
-        if content['status']:
-            order = session.query(Order).filter(Order.id == content['orderId']).one()
-            # Mandar piezas al machine
-            manufacture_info = {}
-            manufacture_info['orderId'] = order.id
-            manufacture_info['number_of_pieces'] = order.number_of_pieces
-            send_message("machine_exchange", "machine_queue", manufacture_info)                
-            # Crear el delivery
-            delivery_info = {}
-            delivery_info['orderId'] = order.id
-            delivery_info['delivered'] = False
-            send_message("delivery_exchange", "create_delivery_queue", delivery_info)
-        else:
-            print("mal", flush=True)
-        session.close()
+        send_message("delivery_exchange", "delivery_update_queue", delivery_info)    
 
     # Sagas callback
     @staticmethod

@@ -60,7 +60,7 @@ class Rabbit():
     # Payment reserve cancell
     @staticmethod
     def payment_reserve_cancell(ch, method, properties, body):
-        print("ORDER-payment callback", flush=True)        
+        print("Payment cancell callback", flush=True)        
         session = Session() 
         content = json.loads(body)        
         try:          
