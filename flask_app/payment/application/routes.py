@@ -26,7 +26,8 @@ def perform_deposit():
     try:
         new_payment = Payment(
             userId=content['userId'],
-            money=content['money'],         
+            money=content['money'],   
+            reserved=0,      
         )             
         try:           
             user = session.query(Payment).filter(Payment.userId == new_payment.userId).one()

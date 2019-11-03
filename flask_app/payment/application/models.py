@@ -32,3 +32,4 @@ class Payment(BaseModel):
     id = Column(Integer, primary_key=True)
     userId = Column(Integer, nullable=False)    
     money = Column(Integer, nullable=False) 
+    reserved = Column(Integer, nullable=False) 
