@@ -4,6 +4,8 @@ from .models import Client
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
 import traceback
 from . import Session
+import bcrypt
+import jwt
 
 # Client Routes #########################################################################################################
 @app.route('/client/create', methods=['POST'])
@@ -14,9 +16,11 @@ def create_client():
         abort(UnsupportedMediaType.code)
     content = request.json
     try:
+        username = content['username']
+        password =  bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt())        
         new_client = Client(
-            name = content['name'],
-            surname = content['surname']
+            username,
+            password
         )
         session.add(new_client)  
         session.commit()        
@@ -25,6 +29,43 @@ def create_client():
         session.close()
         abort(BadRequest.code)
     response = jsonify(new_client.as_dict())   
+    session.close()
+    return response
+
+@app.route('/client/create_jwt', methods=['GET'])
+def create_jwt():
+    session = Session()
+    if request.headers['Content-Type'] != 'application/json':
+        abort(UnsupportedMediaType.code)
+    content = request.json
+
+    response = None
+
+    try:
+        username = content['username']
+        password = content['password'].encode()       
+
+        user = session.query(Client).filter(Client.username == username).one()
+
+        if not bcrypt.checkpw(password, user.password):
+            raise Exception
+
+        key = 'secret'
+        payload = {}
+        payload['id'] = user.id
+        payload['username'] = username
+        payload['service'] = False
+        payload['perms'] = 'ADMIN'
+
+        response = jwt.encode(payload, key, algorithm='HS256')
+        
+        session.add(new_client)  
+        session.commit()        
+    except:
+        session.rollback()
+        session.close()
+        abort(BadRequest.code)
+
     session.close()
     return response
 
