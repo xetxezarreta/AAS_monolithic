@@ -33,3 +33,4 @@ class Client(BaseModel):
     id = Column(Integer, primary_key=True)
     username = Column(TEXT, nullable=False)
     password = Column(TEXT, nullable=False)
+    role = Column(TEXT, nullable=False)

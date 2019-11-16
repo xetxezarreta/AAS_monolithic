@@ -4,6 +4,7 @@ from .models import Order
 from .event_publisher import send_message
 import json
 from .orchestrator import get_orchestrator
+from .myjwt import rsa_singleton
 
 class Rabbit():
     def __init__(self, exchange_name, routing_key, callback_func):        
@@ -34,11 +35,13 @@ class Rabbit():
     def machine_callback(ch, method, properties, body):
         print("ORDER-machine callback", flush=True)
         content = json.loads(body)
-            
-        delivery_info = {}
-        delivery_info['orderId'] = content['orderId']
-        delivery_info['delivered'] = True
-        send_message("delivery_exchange", "delivery_update_queue", delivery_info)    
+
+        if rsa_singleton.check_jwt(content['jwt']) == True:
+            delivery_info = {}
+            delivery_info['orderId'] = content['orderId']
+            delivery_info['delivered'] = True
+            delivery_info['delivered'] = content['jwt']
+            send_message("delivery_exchange", "delivery_update_queue", delivery_info)
 
     # Sagas callback
     @staticmethod

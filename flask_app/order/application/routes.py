@@ -9,12 +9,14 @@ import pika
 from .event_publisher import send_message
 from .orchestrator import get_orchestrator
 from .state import OrderState
+from .myjwt import rsa_singleton
 
 # Order Routes #########################################################################################################
 #{
 #   "userId" : 1,
 #   "zip": '20'
 #   "number_of_pieces" : 2,
+#   "jwt": 'jwt'
 #}
 @app.route('/order/create', methods=['POST'])
 def create_order():
@@ -26,6 +28,9 @@ def create_order():
 
     status = True
     try:      
+        if rsa_singleton.check_jwt(content['jwt']) == False:
+            raise Exception
+
         new_order =  Order(
             number_of_pieces = content['number_of_pieces'],         
         )    
@@ -36,7 +41,8 @@ def create_order():
         message_info['orderId'] = new_order.id
         message_info['userId'] = content['userId']
         message_info['number_of_pieces'] = new_order.number_of_pieces 
-        message_info['zip'] = content['zip'] 
+        message_info['zip'] = content['zip']
+        message_info['jwt'] = content['jwt']
 
         orchestrator = get_orchestrator()
         order_state = OrderState(message_info['orderId'], message_info['userId'], message_info['number_of_pieces'])

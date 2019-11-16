@@ -7,6 +7,7 @@ from flask import abort
 from .event_publisher import send_message
 from .machine import Machine
 import json
+from .myjwt import rsa_singleton
 
 my_machine = Machine()
 
@@ -37,13 +38,15 @@ class Rabbit():
         content = json.loads(body)
 
         try:
+            if rsa_singleton.check_jwt(content['jwt']) == False:
+                raise Exception 
             number_of_pieces = content['number_of_pieces']
-            orderId = content['orderId']
 
             pieces_list = list()
             for _ in range(number_of_pieces):
                 piece = Piece()
-                piece.orderId = orderId            
+                piece.orderId = content['orderId']     
+                piece.jwt = content['jwt']       
                 session.add(piece)    
                 session.commit()     
                 session.refresh(piece)

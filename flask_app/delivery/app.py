@@ -1,12 +1,17 @@
 from application import create_app
 from application.event_handler import Rabbit
+from application.myjwt import rsa_singleton
 
 app = create_app()
 
+# create rabbitmq queues
 exchange_name = 'delivery_exchange'
 Rabbit(exchange_name, 'delivery_create_queue', Rabbit.delivery_create)
 Rabbit(exchange_name, 'delivery_cancell_queue', Rabbit.delivery_cancell)    
 Rabbit(exchange_name, 'delivery_update_queue', Rabbit.delivery_update)
+
+# request jwt public key
+rsa_singleton.request_public_key()
     
 app.app_context().push()
 

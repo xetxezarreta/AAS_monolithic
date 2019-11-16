@@ -1,12 +1,11 @@
 import pika
 import threading
 from .models import Delivery
-from werkzeug.exceptions import BadRequest
-from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound 
-from flask import abort
+from sqlalchemy.orm.exc import NoResultFound
 from .event_publisher import send_message
 from . import Session
 import json
+from .myjwt import rsa_singleton
 
 class Rabbit():
     def __init__(self, exchange_name, routing_key, callback_func):        
@@ -41,11 +40,12 @@ class Rabbit():
         status = True
         
         try:  
+            if rsa_singleton.check_jwt(content['jwt']) == False:
+                raise Exception
             new_delivery = Delivery(
                 orderId = content['orderId'],
                 delivered = False,
             )
-
             if content['zip'] == '01' or content['zip'] == '20' or content['zip'] == '48':
                 session.add(new_delivery) 
                 session.commit()
@@ -67,6 +67,8 @@ class Rabbit():
         session = Session() 
         content = json.loads(body)        
         try:          
+            if rsa_singleton.check_jwt(content['jwt']) == False:
+                raise Exception
             session.query(Delivery).filter(Delivery.orderId == content['orderId']).one().delete()
             session.commit() 
         except:
@@ -80,6 +82,9 @@ class Rabbit():
         content = json.loads(body)
 
         try:
+            if rsa_singleton.check_jwt(content['jwt']) == False:
+                raise Exception
+            
             new_delivery = Delivery(
                 orderId = content['orderId'],
                 delivered = content['delivered'],

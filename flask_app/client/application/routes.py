@@ -6,6 +6,8 @@ import traceback
 from . import Session
 import bcrypt
 import jwt
+from .mycrypto import rsa_singleton
+import datetime
 
 # Client Routes #########################################################################################################
 @app.route('/client/create', methods=['POST'])
@@ -17,10 +19,13 @@ def create_client():
     content = request.json
     try:
         username = content['username']
-        password =  bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt())        
+        password = bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt())        
+        role = content['role']
+
         new_client = Client(
             username,
-            password
+            password,
+            role
         )
         session.add(new_client)  
         session.commit()        
@@ -38,29 +43,22 @@ def create_jwt():
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
     content = request.json
-
     response = None
-
     try:
         username = content['username']
-        password = content['password'].encode()       
-
+        password = content['password'].encode()     
         user = session.query(Client).filter(Client.username == username).one()
 
         if not bcrypt.checkpw(password, user.password):
             raise Exception
 
-        key = 'secret'
         payload = {}
         payload['id'] = user.id
         payload['username'] = username
         payload['service'] = False
-        payload['perms'] = 'ADMIN'
-
-        response = jwt.encode(payload, key, algorithm='HS256')
-        
-        session.add(new_client)  
-        session.commit()        
+        payload['role'] = user.role
+        payload['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+        response = jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256')      
     except:
         session.rollback()
         session.close()
@@ -68,6 +66,12 @@ def create_jwt():
 
     session.close()
     return response
+
+@app.route('/client/get_public_key', methods=['GET'])
+def get_public_key():
+    content = {}
+    content['public_key'] = rsa_singleton.get_public_key()
+    return content    
 
 # Error Handling #######################################################################################################
 @app.errorhandler(UnsupportedMediaType)

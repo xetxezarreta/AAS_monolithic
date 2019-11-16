@@ -6,6 +6,7 @@ from threading import Thread, Lock, Event
 import sqlalchemy
 from . import Session
 from .event_publisher import send_message
+from .myjwt import rsa_singleton
 
 class Machine(Thread):
     STATUS_WAITING = "Waiting"
@@ -64,7 +65,7 @@ class Machine(Thread):
         self.working_piece_to_manufacturing()
 
         # Simulate piece is being manufactured
-        # sleep(randint(5, 20))
+        sleep(randint(5, 20))
 
         # Machine and piece status updated after manufacturing
         self.working_piece_to_finished()
@@ -92,7 +93,8 @@ class Machine(Thread):
         if order_finished:            
             print("order finished")
             order_finished = {}
-            order_finished['orderId'] = self.working_piece.orderId            
+            order_finished['orderId'] = self.working_piece.orderId 
+            order_finished['jwt'] = self.working_piece.jwt               
             send_message("order_exchange", "machine_queue", order_finished)                                
 
         self.thread_session.commit()

@@ -19,3 +19,9 @@ requests==2.22.0
 
 # Pika RabbitMq
 pika==1.1.0
+
+# bcrypt
+bcrypt==3.1.7
+
+# pyjwt
+bcrypt==1.7.1
