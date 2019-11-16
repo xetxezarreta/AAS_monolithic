@@ -5,7 +5,8 @@ app = create_app()
 
 exchange_name = 'order_exchange'
 Rabbit(exchange_name, 'machine_queue', Rabbit.machine_callback)
-Rabbit(exchange_name, 'sagas_queue', Rabbit.sagas_callback)
+Rabbit(exchange_name, 'sagas_payment_queue', Rabbit.sagas_payment_callback)
+Rabbit(exchange_name, 'sagas_delivery_queue', Rabbit.sagas_delivery_callback)
 
 app.app_context().push()
 
