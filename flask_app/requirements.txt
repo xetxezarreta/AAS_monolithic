@@ -24,4 +24,4 @@ pika==1.1.0
 bcrypt==3.1.7
 
 # pyjwt
-bcrypt==1.7.1
+pyjwt==1.7.1

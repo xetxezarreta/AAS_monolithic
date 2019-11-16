@@ -8,6 +8,7 @@ import bcrypt
 import jwt
 from .mycrypto import rsa_singleton
 import datetime
+import json
 
 # Client Routes #########################################################################################################
 @app.route('/client/create', methods=['POST'])
@@ -18,14 +19,10 @@ def create_client():
         abort(UnsupportedMediaType.code)
     content = request.json
     try:
-        username = content['username']
-        password = bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt())        
-        role = content['role']
-
         new_client = Client(
-            username,
-            password,
-            role
+            username = content['username'],
+            password = bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt()).decode('utf-8'),
+            role = content['role']
         )
         session.add(new_client)  
         session.commit()        
@@ -44,26 +41,25 @@ def create_jwt():
         abort(UnsupportedMediaType.code)
     content = request.json
     response = None
-    try:
-        username = content['username']
-        password = content['password'].encode()     
-        user = session.query(Client).filter(Client.username == username).one()
-
-        if not bcrypt.checkpw(password, user.password):
+    try: 
+        user = session.query(Client).filter(Client.id == content['id']).one()
+        if not bcrypt.checkpw(content['password'].encode('utf-8'), user.password.encode('utf-8')):
             raise Exception
-
         payload = {}
         payload['id'] = user.id
-        payload['username'] = username
+        payload['username'] = user.username
         payload['service'] = False
         payload['role'] = user.role
         payload['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
-        response = jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256')      
+        print('44444444444444444', flush=True)
+        response = {}
+        response['jwt'] = jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256')  
+        print('55555555555555555', flush=True)
     except:
         session.rollback()
         session.close()
         abort(BadRequest.code)
-
+    print('666666666666666666', flush=True)
     session.close()
     return response
 

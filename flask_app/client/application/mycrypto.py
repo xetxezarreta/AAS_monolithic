@@ -1,6 +1,6 @@
 class rsa_singleton(object):
-    public_key = 'public'
-    private_key = 'private'
+    private_key = '-----BEGIN PRIVATE KEY-----\nMIGEAgEAMBAGByqGSM49AgEGBS...'
+    public_key = '-----BEGIN PUBLIC KEY-----\nMHYwEAYHKoZIzj0CAQYFK4EEAC...'
 
     @staticmethod
     def get_public_key():
