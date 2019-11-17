@@ -13,7 +13,7 @@ class rsa_singleton(object):
     def request_public_key():
         while rsa_singleton.public_key is None:
             try:
-                response = requests.get('http://192.168.17.3:8088/client/get_public_key').json()
+                response = requests.get('https://192.168.17.3:443/client/get_public_key').json()
                 rsa_singleton.public_key = response['public_key']
             except:
                 print('Payment waiting for public key', flush=True)
