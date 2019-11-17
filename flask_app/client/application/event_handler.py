@@ -23,7 +23,7 @@ class Rabbit():
         channel.queue_bind(exchange=self.exchange_name, queue=queue_name, routing_key=self.routing_key)
 
         # Send public key
-        content = {}
-        content['public_key'] = rsa_singleton.get_public_key()
-        send_message(self.exchange_name, self.routing_key, content)
+        #content = {}
+        #content['public_key'] = rsa_singleton.get_public_key()
+        #send_message(self.exchange_name, self.routing_key, content)
         

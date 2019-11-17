@@ -45,28 +45,32 @@ def create_jwt():
         user = session.query(Client).filter(Client.id == content['id']).one()
         if not bcrypt.checkpw(content['password'].encode('utf-8'), user.password.encode('utf-8')):
             raise Exception
-        payload = {}
-        payload['id'] = user.id
-        payload['username'] = user.username
-        payload['service'] = False
-        payload['role'] = user.role
-        payload['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
-        print('44444444444444444', flush=True)
-        response = {}
-        response['jwt'] = jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256')  
+        payload = {
+            'id': user.id,
+            'username': user.username,
+            'service': False,
+            'role': user.role,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+        }
         print('55555555555555555', flush=True)
+        new_jwt = jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256')
+        print('666666666666666666', flush=True)
+        response = {
+            'jwt': new_jwt
+        }
+        print('77777777777777777', flush=True)
     except:
         session.rollback()
         session.close()
         abort(BadRequest.code)
-    print('666666666666666666', flush=True)
+    
     session.close()
     return response
 
 @app.route('/client/get_public_key', methods=['GET'])
 def get_public_key():
     content = {}
-    content['public_key'] = rsa_singleton.get_public_key()
+    content['public_key'] = rsa_singleton.get_public_key().decode()
     return content    
 
 # Error Handling #######################################################################################################
