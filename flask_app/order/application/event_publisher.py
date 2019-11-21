@@ -3,7 +3,7 @@ import json
 
 def send_message(exchange, routing_key, message):
     credentials = pika.PlainCredentials('guest', 'guest')
-    parameters = pika.ConnectionParameters('192.168.17.4', 5672, '/', credentials)
+    parameters = pika.ConnectionParameters('10.0.2.64', 5672, '/', credentials)
     connection = pika.BlockingConnection(parameters) 
     channel = connection.channel()
 
