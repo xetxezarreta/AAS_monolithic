@@ -20,9 +20,6 @@ services:
       - '13000:${GUNICORN_PORT}'
     volumes:
       - './flask_app/client:/app'
-    networks: 
-      lb4_network: 
-        ipv4_address: '${CLIENT_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
@@ -112,9 +109,6 @@ services:
     expose:
       - '${HAPROXY_PORT}'
       - '${HAPROXY_STATS_PORT}'
-    networks:
-      lb4_network:
-        ipv4_address: '${HAPROXY_IP}'
     environment:
       - 'CLIENT_IP=${CLIENT_IP}'
       - 'CLIENT_PORT=${GUNICORN_PORT}'
