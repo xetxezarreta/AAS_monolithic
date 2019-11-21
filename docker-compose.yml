@@ -111,7 +111,7 @@ services:
       - '${HAPROXY_STATS_PORT}'
     environment:
       - 'CLIENT_IP=${CLIENT_IP}'
-      - 'CLIENT_PORT=${GUNICORN_PORT}'
+      - 'CLIENT_PORT=${CLIENT_PORT}'
       - 'DELIVERY_IP=${DELIVERY_IP}'
       - 'DELIVERY_PORT=${GUNICORN_PORT}'
       - 'ORDER_IP=${ORDER_IP}'
