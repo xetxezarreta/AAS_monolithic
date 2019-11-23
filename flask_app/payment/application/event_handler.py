@@ -20,7 +20,7 @@ class Rabbit():
         print(self.routing_key, flush=True)
         # RabbitConfig
         credentials = pika.PlainCredentials('guest', 'guest')
-        parameters = pika.ConnectionParameters('10.0.2.64', 5672, '/', credentials)
+        parameters = pika.ConnectionParameters('10.0.2.58', 5672, '/', credentials)
         connection = pika.BlockingConnection(parameters)
         channel = connection.channel()  
         channel.exchange_declare(exchange=self.exchange_name, exchange_type='direct')

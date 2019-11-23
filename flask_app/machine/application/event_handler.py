@@ -15,7 +15,7 @@ class Rabbit():
         # Rabbit config
         exchange_name = 'machine_exchange'
         credentials = pika.PlainCredentials('guest', 'guest')
-        parameters = pika.ConnectionParameters('10.0.2.64', 5672, '/', credentials)
+        parameters = pika.ConnectionParameters('10.0.2.58', 5672, '/', credentials)
         connection = pika.BlockingConnection(parameters) 
         self.channel = connection.channel()  
         self.channel.exchange_declare(exchange=exchange_name, exchange_type='direct')
