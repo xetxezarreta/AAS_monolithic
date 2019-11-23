@@ -5,9 +5,6 @@ services:
   # ---------------------------------------------------
   rabbitmq:
     image: "rabbitmq:3-management"
-    networks: 
-      lb4_network: 
-        ipv4_address: '${RABBIT_IP}'
     ports:
       - '5672:5672'
       - '15672:15672'
