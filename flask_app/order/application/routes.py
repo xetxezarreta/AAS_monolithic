@@ -56,8 +56,10 @@ def create_order():
         session.close()
         abort(BadRequest.code)
 
+    response = jsonify(new_order.as_dict())
+
     session.close()
-    return get_order_response(status)
+    return response#get_order_response(status)
 
 # Respuesta del POST del order.
 # EJEMPLO:
