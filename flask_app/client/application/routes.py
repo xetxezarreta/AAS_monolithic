@@ -57,7 +57,8 @@ def create_jwt():
             'jwt': jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256')
         }
         print('77777777777777777', flush=True)
-    except:
+    except Exception as e:
+        print(e, flush=True)
         session.rollback()
         session.close()
         abort(BadRequest.code)

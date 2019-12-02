@@ -26,5 +26,6 @@ bcrypt==3.1.7
 # PyJWT
 PyJWT==1.7.1
 
-# pycryptodome
-pycryptodome==3.9.3
+# crypto
+pycryptodome
+cryptography
