@@ -54,7 +54,7 @@ def create_jwt():
         }
         print('55555555555555555', flush=True)
         response = {
-            'jwt': jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256')
+            'jwt': str(jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256'))
         }
         print('77777777777777777', flush=True)
     except Exception as e:
