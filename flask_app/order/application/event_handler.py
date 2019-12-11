@@ -4,7 +4,7 @@ from .models import Order
 from .event_publisher import send_message
 import json
 from .orchestrator import get_orchestrator
-from .myjwt import rsa_singleton
+from .auth import rsa_singleton
 
 class Rabbit():
     def __init__(self, exchange_name, routing_key, callback_func):        

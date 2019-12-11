@@ -1,6 +1,6 @@
 from application import create_app
 from application.event_handler import Rabbit
-from application.myjwt import rsa_singleton
+from application.auth import rsa_singleton
 
 app = create_app()
 

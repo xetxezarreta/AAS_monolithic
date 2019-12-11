@@ -5,7 +5,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from .event_publisher import send_message
 from . import Session
 import json
-from .myjwt import rsa_singleton
+from .auth import rsa_singleton
 
 class Rabbit():
     def __init__(self, exchange_name, routing_key, callback_func):        

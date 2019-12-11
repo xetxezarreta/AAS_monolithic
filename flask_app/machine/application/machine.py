@@ -6,7 +6,7 @@ from threading import Thread, Lock, Event
 import sqlalchemy
 from . import Session
 from .event_publisher import send_message
-from .myjwt import rsa_singleton
+from .auth import rsa_singleton
 
 class Machine(Thread):
     STATUS_WAITING = "Waiting"

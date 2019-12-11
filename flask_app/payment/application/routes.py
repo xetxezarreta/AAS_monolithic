@@ -5,7 +5,7 @@ from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, Unsup
 import traceback
 from . import Session
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound 
-from .myjwt import rsa_singleton
+from .auth import rsa_singleton
 
 # Payment Routes #########################################################################################################
 # Este POST deposita el dinero de un usuario.

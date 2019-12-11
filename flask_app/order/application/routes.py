@@ -9,7 +9,7 @@ import pika
 from .event_publisher import send_message
 from .orchestrator import get_orchestrator
 from .state import OrderState
-from .myjwt import rsa_singleton
+from .auth import rsa_singleton
 
 # Order Routes #########################################################################################################
 #{

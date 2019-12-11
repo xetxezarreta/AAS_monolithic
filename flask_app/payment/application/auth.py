@@ -1,6 +1,7 @@
 import requests
 import datetime
 from time import sleep
+import jwt
 
 class rsa_singleton(object):
     public_key = None
@@ -20,8 +21,8 @@ class rsa_singleton(object):
                 sleep(3)
                 
     @staticmethod
-    def check_jwt(jwt):
-        payload = jwt.decode(jwt, rsa_singleton.public_key, algorithms='RS256')
+    def check_jwt(jwt_token):
+        payload = jwt.decode(str.encode(jwt_token), rsa_singleton.public_key, algorithms='RS256')
         # comprobar tiempo de expiración
         if payload['exp'] < datetime.datetime.utcnow():
             return False

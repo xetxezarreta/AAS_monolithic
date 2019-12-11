@@ -7,7 +7,7 @@ from flask import abort
 from .event_publisher import send_message
 from .machine import Machine
 import json
-from .myjwt import rsa_singleton
+from .auth import rsa_singleton
 
 my_machine = Machine()
 
