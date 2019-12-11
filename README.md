@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# AAS - Arquitecturas Avanzadas de Software
-Monolithic application to Microservices.
-=======
 # Running Monolithic application using vagrant and docker-compose
 * Go to your vagrant basic folder: (e.g.)
 ```cmd
@@ -150,4 +146,3 @@ You can get the ID when you create the order.
 ## View all Pieces [GET]:
 * URL: *http://10.100.199.200:13000/piece* or *http://10.100.199.200:13000/pieces*
 
->>>>>>> f7c5b0da40c8339f5130b3a81aa2cb5e619a6882

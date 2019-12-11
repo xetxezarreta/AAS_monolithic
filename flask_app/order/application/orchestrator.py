@@ -8,7 +8,12 @@ class Orchestrator(object):
         order_state = self.__get_order_from_list(message['orderId'])
         if message['type'] == 'PAYMENT':
             order_state.treat_payment(message)
-
+            """
+            if message ['type] == 'PAYMENT': 
+                order_state.treat_payment(message)
+                if order_state.state.get_state() == 'PENDING PAYMENT':
+                    send_message("delivery_exchange", "delivery_create_queue", message)
+            """
             if order_state.state.get_state() == 'PENDING DELIVERY':
                  #send_message("delivery_exchange", "delivery_cancell_queue", message)
                  send_message("delivery_exchange", "delivery_create_queue", message)

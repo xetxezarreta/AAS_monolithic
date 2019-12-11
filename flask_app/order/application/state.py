@@ -40,3 +40,7 @@ class Accepted_delivery(State):
 class Cancelled_delivery(State):
     def get_state(self):
         return "CANCELLED DELIVERY"
+#####CREADA NUEVA##############        
+class Accepted_payment(State):
+    def get_state(self):
+        return "PAYMENT ACCEPTED"
