@@ -8,6 +8,7 @@ class Orchestrator(object):
         order_state = self.__get_order_from_list(message['orderId'])
         if message['type'] == 'PAYMENT':
             order_state.treat_payment(message)
+            print("test-sagas", flush=True)
             """
             if message ['type] == 'PAYMENT': 
                 order_state.treat_payment(message)

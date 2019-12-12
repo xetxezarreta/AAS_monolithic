@@ -45,6 +45,7 @@ class Rabbit():
                 orderId = content['orderId'],
                 delivered = False,
             )
+            print("Delivery-test-comprobando zip", flush=True) 
 
             if content['zip'] == '01' or content['zip'] == '20' or content['zip'] == '48':
                 session.add(new_delivery) 
@@ -54,7 +55,7 @@ class Rabbit():
         except:
             status = False
             session.rollback()   
-             
+        print("Delivery-test-despues-de-zip", flush=True) 
         content['status'] = status
         content['type'] = 'DELIVERY'
         send_message("order_exchange", "sagas_queue", content)

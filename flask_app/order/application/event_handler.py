@@ -43,6 +43,7 @@ class Rabbit():
     # Sagas callback for Payment
     @staticmethod
     def sagas_payment_callback(ch, method, properties, body):
+        print("sagas-clabbackkkkkk", flush=True)
         content = json.loads(body)
         orchestrator = get_orchestrator()
         orchestrator.treat_message(content)

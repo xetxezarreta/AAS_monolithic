@@ -10,7 +10,7 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 @app.route('/delivery/deliveries', methods=['GET'])
 def view_deliveries():
     session = Session()
-    print("GET All Deliveries.")
+    print("GET All Deliveries.", flush=True)
     deliveries = session.query(Delivery).all()
     response = jsonify(Delivery.list_as_dict(deliveries))
     session.close()
