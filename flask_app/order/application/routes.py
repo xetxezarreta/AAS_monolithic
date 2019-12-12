@@ -44,7 +44,7 @@ def create_order():
         
         #CAMBIAR?????
         send_message("payment_exchange", "payment_reserve_queue", message_info)
-        send_message("delivery_exchange", "delivery_create_queue", message_info)
+        #send_message("delivery_exchange", "delivery_create_queue", message_info)
     except KeyError:
         status = False
         session.rollback()
