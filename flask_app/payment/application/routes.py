@@ -53,6 +53,7 @@ def clean_payments_database():
     session.query(Payment).delete()
     session.close()
     return " filas eliminadas de payment"
+    
 
 # Error Handling #######################################################################################################
 @app.errorhandler(UnsupportedMediaType)

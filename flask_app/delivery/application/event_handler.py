@@ -58,7 +58,7 @@ class Rabbit():
         print("Delivery-test-despues-de-zip", flush=True) 
         content['status'] = status
         content['type'] = 'DELIVERY'
-        send_message("order_exchange", "sagas_queue", content)
+        send_message("order_exchange", "sagas_delivery_queue", content)
         session.close()         
 
     # Payment reserve cancell
