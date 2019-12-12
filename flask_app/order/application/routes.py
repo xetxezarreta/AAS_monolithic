@@ -25,24 +25,22 @@ def create_order():
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
     content = request.json
-
     status = True
     try:      
         if rsa_singleton.check_jwt(content['jwt']) == False:
             raise Exception
-
         new_order =  Order(
             number_of_pieces = content['number_of_pieces'],         
         )    
         session.add(new_order) 
-        session.commit()
-         
-        message_info = {}
-        message_info['orderId'] = new_order.id
-        message_info['userId'] = content['userId']
-        message_info['number_of_pieces'] = new_order.number_of_pieces 
-        message_info['zip'] = content['zip']
-        message_info['jwt'] = content['jwt']
+        session.commit()         
+        message_info = {
+            'orderId': new_order.id,
+            'userId': content['userId'],
+            'number_of_pieces': new_order.number_of_pieces,
+            'zip': content['zip'],
+            'jwt': content['jwt']
+        }
 
         orchestrator = get_orchestrator()
         order_state = OrderState(message_info['orderId'], message_info['userId'], message_info['number_of_pieces'])

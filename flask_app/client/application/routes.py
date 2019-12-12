@@ -52,11 +52,9 @@ def create_jwt():
             'role': user.role,
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
         }
-        print('55555555555555555', flush=True)
         response = {
-            'jwt': str(jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256'))
+            'jwt': jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256').decode("utf-8") 
         }
-        print('77777777777777777', flush=True)
     except Exception as e:
         print(e, flush=True)
         session.rollback()

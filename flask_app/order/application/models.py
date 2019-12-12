@@ -33,8 +33,3 @@ class Order(BaseModel):
     id = Column(Integer, primary_key=True)
     number_of_pieces = Column(Integer, nullable=False)
     description = Column(TEXT, nullable=False, default="No description")
-
-    def as_dict(self):
-        d = super().as_dict()
-        d['pieces'] = [i.as_dict() for i in self.pieces]
-        return d

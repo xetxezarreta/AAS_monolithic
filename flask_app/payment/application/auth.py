@@ -1,5 +1,5 @@
 import requests
-import datetime
+from datetime import datetime
 from time import sleep
 import jwt
 
@@ -21,18 +21,12 @@ class rsa_singleton(object):
                 sleep(3)
                 
     @staticmethod
-    def check_jwt(jwt_token):
+    def check_jwt(jwt_token):        
         payload = jwt.decode(str.encode(jwt_token), rsa_singleton.public_key, algorithms='RS256')
-        # comprobar tiempo de expiración
-        if payload['exp'] < datetime.datetime.utcnow():
+        # comprobar tiempo de expiración           
+        if payload['exp'] < datetime.timestamp(datetime.utcnow()):
             return False
         # comprobar rol
         if payload['role'] != 'ADMIN':
             return False        
         return True
-
-
-
-    
-
-
