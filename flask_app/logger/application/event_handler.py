@@ -23,7 +23,8 @@ class Rabbit():
         # Create queue
         result = channel.queue_declare(queue='', exclusive=True)
         queue_name = result.method.queue
-        channel.queue_bind(exchange=self.exchange_name, queue=queue_name, routing_key=self.routing_key)
+        channel.queue_bind(exchange=self.exchange_name, queue=queue_name, routing_key='logger_queue.info')
+        channel.queue_bind(exchange=self.exchange_name, queue=queue_name, routing_key='logger_queue.error')
         channel.basic_consume(queue=queue_name, on_message_callback=self.callback_func, auto_ack=True)
         thread = threading.Thread(target=channel.start_consuming)
         thread.start()      
@@ -34,11 +35,12 @@ class Rabbit():
         print("Log callback", flush=True)   
         session = Session() 
         content = json.loads(body)
+        print(content, flush=True)
         try:
             new_log = Logger(
                 log = str(content)
             )
-            session.add(new_delivery) 
+            session.add(new_log) 
             session.commit()
         except Exception as e:
             print(e, flush=True)   

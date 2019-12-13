@@ -58,8 +58,9 @@ def create_jwt():
         response = {
             'jwt': jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256').decode("utf-8") 
         }
+        create_log(__file__, 'New JWT created')
     except Exception as e:
-        print(e, flush=True)
+        create_log(__file__, e)
         session.rollback()
         session.close()
         abort(BadRequest.code)

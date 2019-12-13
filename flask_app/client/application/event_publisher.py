@@ -12,7 +12,7 @@ def send_message(exchange, routing_key, message):
 
 def send_log(message):
     exchange = 'logger_exchange'
-    routing_key = 'logger_queue'
+    routing_key = 'logger_queue.info'
     credentials = pika.PlainCredentials('guest', 'guest')
     parameters = pika.ConnectionParameters('192.168.17.4', 5672, '/', credentials)
     connection = pika.BlockingConnection(parameters) 

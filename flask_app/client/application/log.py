@@ -8,4 +8,5 @@ def create_log(file_name, message):
         'file': file_name,
         'message': message
     }
+    print(log, flush=True)
     send_log(log)
