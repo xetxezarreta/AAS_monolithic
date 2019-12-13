@@ -9,6 +9,7 @@ import jwt
 from .mycrypto import rsa_singleton
 import datetime
 import json
+from .log import create_log
 
 # Client Routes #########################################################################################################
 @app.route('/client/create', methods=['POST'])
@@ -25,8 +26,10 @@ def create_client():
             role = content['role']
         )
         session.add(new_client)  
-        session.commit()        
-    except KeyError:
+        session.commit()       
+        create_log(__file__, 'New client created')
+    except Exception as e:
+        create_log(__file__, e)
         session.rollback()
         session.close()
         abort(BadRequest.code)

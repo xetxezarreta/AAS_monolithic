@@ -17,7 +17,7 @@ services:
   client:
     build: ./flask_app
     ports:
-      - '13000:${GUNICORN_PORT}'
+      - '${CLIENT_PORT}:${GUNICORN_PORT}'
     volumes:
       - './flask_app/client:/app'
     networks: 
@@ -35,7 +35,7 @@ services:
   delivery:
     build: ./flask_app
     ports:
-      - '14000:${GUNICORN_PORT}'
+      - '${DELIVERY_PORT}:${GUNICORN_PORT}'
     volumes:
       - './flask_app/delivery:/app'
     networks: 
@@ -53,7 +53,7 @@ services:
   machine:
     build: ./flask_app
     ports:
-      - '15000:${GUNICORN_PORT}'
+      - '${MACHINE_PORT}:${GUNICORN_PORT}'
     volumes:
       - './flask_app/machine:/app'
     networks: 
@@ -71,7 +71,7 @@ services:
   order:
     build: ./flask_app
     ports:
-      - '16000:${GUNICORN_PORT}'
+      - '${ORDER_PORT}:${GUNICORN_PORT}'
     volumes:
       - './flask_app/order:/app'
     networks: 
@@ -89,12 +89,30 @@ services:
   payment:
     build: ./flask_app
     ports:
-      - '17000:${GUNICORN_PORT}'
+      - '${PAYMENT_PORT}:${GUNICORN_PORT}'
     volumes:
       - './flask_app/payment:/app'
     networks: 
       lb4_network: 
         ipv4_address: '${PAYMENT_IP}'
+    environment:
+      GUNICORN_PORT: '${GUNICORN_PORT}'
+      # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
+      SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
+      SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+    restart: on-failure
+  # ---------------------------------------------------
+  # LOGGER
+  # ---------------------------------------------------
+  logger:
+    build: ./flask_app
+    ports:
+      - '${LOGGER_PORT}:${GUNICORN_PORT}'
+    volumes:
+      - './flask_app/logger:/app'
+    networks: 
+      lb4_network: 
+        ipv4_address: '${LOGGER_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
