@@ -51,7 +51,7 @@ class Rabbit():
             session.rollback()     
         content['status'] = status
         content['type'] = 'PAYMENT'
-        send_message("order_exchange", "sagas_payment_queue", content)
+        send_message("payment_exchange", "sagas_payment_queue", content)
         session.close()         
 
     # Payment reserve cancell

@@ -54,7 +54,7 @@ class Rabbit():
              
         content['status'] = status
         content['type'] = 'DELIVERY'
-        send_message("order_exchange", "sagas_delivery_queue", content)
+        send_message("delivery_exchange", "sagas_delivery_queue", content)
         session.close()         
 
     # Payment reserve cancell

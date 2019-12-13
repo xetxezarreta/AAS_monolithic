@@ -92,7 +92,7 @@ class Machine(Thread):
             order_finished = {
                 'orderId': self.working_piece.orderId
             }             
-            send_message("order_exchange", "machine_queue", order_finished)                                
+            send_message("machine_exchange", "machine_queue", order_finished)                                
 
         self.thread_session.commit()
         self.thread_session.flush()
