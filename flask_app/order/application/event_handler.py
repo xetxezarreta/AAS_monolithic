@@ -42,12 +42,10 @@ class Rabbit():
                 'jwt': content['jwt'],
                 'delivered': True
             }
-            print("OK", flush=True)
             send_message("delivery_exchange", "delivery_update_queue", delivery_info)
 
     @staticmethod
     def sagas_payment_callback(ch, method, properties, body):
-        print("sagas-clabbackkkkkk", flush=True)
         content = json.loads(body)
         orchestrator = get_orchestrator()
         orchestrator.treat_message(content)

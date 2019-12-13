@@ -59,9 +59,7 @@ class Machine(Thread):
         piece_ref = self.queue.popleft()
 
         # Machine and piece status updated during manufacturing
-        self.working_piece = self.thread_session.query(Piece).get(piece_ref)  
-        print("WORKING PIECE", flush=True)     
-        print(self.working_piece, flush=True)   
+        self.working_piece = self.thread_session.query(Piece).get(piece_ref)   
 
         # Machine and piece status updated before manufacturing
         self.working_piece_to_manufacturing()
@@ -92,7 +90,6 @@ class Machine(Thread):
                     order_finished = False        
 
         if order_finished:            
-            print("order finished", flush=True)
             order_finished = {
                 'orderId': self.working_piece.orderId,
                 'jwt': self.working_piece.jwt
