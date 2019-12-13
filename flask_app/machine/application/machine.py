@@ -59,13 +59,15 @@ class Machine(Thread):
         piece_ref = self.queue.popleft()
 
         # Machine and piece status updated during manufacturing
-        self.working_piece = self.thread_session.query(Piece).get(piece_ref)        
+        self.working_piece = self.thread_session.query(Piece).get(piece_ref)  
+        print("WORKING PIECE", flush=True)     
+        print(self.working_piece, flush=True)   
 
         # Machine and piece status updated before manufacturing
         self.working_piece_to_manufacturing()
 
         # Simulate piece is being manufactured
-        sleep(randint(5, 20))
+        sleep(randint(1, 5))
 
         # Machine and piece status updated after manufacturing
         self.working_piece_to_finished()
@@ -80,21 +82,21 @@ class Machine(Thread):
 
     def working_piece_to_finished(self):
         self.instance.status = Machine.STATUS_CHANGING_PIECE
-        self.working_piece.status = Piece.STATUS_MANUFACTURED
-       
+        self.working_piece.status = Piece.STATUS_MANUFACTURED      
         order_finished = True
         for ref in self.queue:
             piece = self.thread_session.query(Piece).get(ref)     
             if piece.orderId == self.working_piece.orderId:
                 if piece.status != Piece.STATUS_MANUFACTURED:
-                    print("order not finished")
+                    print("order not finished", flush=True)
                     order_finished = False        
 
         if order_finished:            
-            print("order finished")
-            order_finished = {}
-            order_finished['orderId'] = self.working_piece.orderId 
-            order_finished['jwt'] = self.working_piece.jwt               
+            print("order finished", flush=True)
+            order_finished = {
+                'orderId': self.working_piece.orderId,
+                'jwt': self.working_piece.jwt
+            }             
             send_message("order_exchange", "machine_queue", order_finished)                                
 
         self.thread_session.commit()
@@ -116,6 +118,3 @@ class Machine(Thread):
             if piece.status == Piece.STATUS_QUEUED:
                 self.queue.remove(piece.ref)
                 piece.status = Piece.STATUS_CANCELLED
-
-
-

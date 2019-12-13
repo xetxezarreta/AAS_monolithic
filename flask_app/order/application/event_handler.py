@@ -34,13 +34,15 @@ class Rabbit():
     @staticmethod
     def machine_callback(ch, method, properties, body):
         print("ORDER-machine callback", flush=True)
-        content = json.loads(body)
+        content = json.loads(body)        
 
         if rsa_singleton.check_jwt(content['jwt']) == True:
-            delivery_info = {}
-            delivery_info['orderId'] = content['orderId']
-            delivery_info['delivered'] = True
-            delivery_info['delivered'] = content['jwt']
+            delivery_info = {
+                'orderId': content['orderId'],
+                'jwt': content['jwt'],
+                'delivered': True
+            }
+            print("OK", flush=True)
             send_message("delivery_exchange", "delivery_update_queue", delivery_info)
 
     @staticmethod
