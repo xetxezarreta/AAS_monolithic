@@ -31,5 +31,6 @@ class BaseModel(Base):
 class Client(BaseModel):
     __tablename__ = "client"
     id = Column(Integer, primary_key=True)
-    name = Column(TEXT, nullable=False)
-    surname = Column(TEXT, nullable=False)
+    username = Column(TEXT, nullable=False)
+    password = Column(TEXT, nullable=False)
+    role = Column(TEXT, nullable=False)

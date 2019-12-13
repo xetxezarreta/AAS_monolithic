@@ -112,6 +112,8 @@ services:
     expose:
       - '${HAPROXY_PORT}'
       - '${HAPROXY_STATS_PORT}'
+    volumes:
+      - ./flask_app/haproxy/aas_ssl_cert.pem:/usr/local/etc/haproxy/aas_ssl_cert.pem
     networks:
       lb4_network:
         ipv4_address: '${HAPROXY_IP}'

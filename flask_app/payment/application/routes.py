@@ -5,6 +5,7 @@ from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, Unsup
 import traceback
 from . import Session
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound 
+from .auth import rsa_singleton
 
 # Payment Routes #########################################################################################################
 # Este POST deposita el dinero de un usuario.
@@ -13,7 +14,8 @@ from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 # Datos esperados en el post:
 #{
 #	"userId": 1,
-#	"money": 100
+#	"money": 100,
+#   "jwt": "jwt"
 #}
 @app.route('/payment/deposit', methods=['POST'])
 def perform_deposit():    
@@ -24,6 +26,8 @@ def perform_deposit():
     content = request.json
     
     try:
+        if rsa_singleton.check_jwt(content['jwt']) == False:
+            raise Exception  
         new_payment = Payment(
             userId=content['userId'],
             money=content['money'],   

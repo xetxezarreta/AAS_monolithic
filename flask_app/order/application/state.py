@@ -3,33 +3,40 @@ class OrderState(object):
         self.orderId = orderId
         self.userId = userId
         self.pieces = pieces
-        self.p_state = Pending()
-        self.d_state = Pending()
+        self.state = Pending_payment()
     
     def treat_payment(self, message):
         if message['status']:
-            self.p_state = Accepted()
+            self.state = Pending_delivery()
         else:
-            self.p_state = Cancelled()
+            self.state = Cancelled_payment()
 
     def treat_delivery(self, message):
         if message['status']:
-            self.d_state = Accepted()
+            self.state = Accepted_delivery()
         else:
-            self.d_state = Cancelled()
+            self.state = Cancelled_delivery()
 
 class State(object):
     def get_state(self):
         return "STATE"
 
-class Pending(State):
+class Pending_payment(State):
     def get_state(self):
-        return "PENDING"
+        return "PENDING PAYMENT"
 
-class Accepted(State):
+class Cancelled_payment(State):
     def get_state(self):
-        return "ACCEPTED"
+        return "CANCELLED PAYMENT"
 
-class Cancelled(State):
+class Pending_delivery(State):
     def get_state(self):
-        return "CANCELLED"
+        return "PENDING DELIVERY"
+
+class Accepted_delivery(State):
+    def get_state(self):
+        return "ACCEPTED DELIVERY"
+
+class Cancelled_delivery(State):
+    def get_state(self):
+        return "CANCELLED DELIVERY"

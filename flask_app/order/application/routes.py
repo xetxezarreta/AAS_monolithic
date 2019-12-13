@@ -9,12 +9,14 @@ import pika
 from .event_publisher import send_message
 from .orchestrator import get_orchestrator
 from .state import OrderState
+from .auth import rsa_singleton
 
 # Order Routes #########################################################################################################
 #{
 #   "userId" : 1,
 #   "zip": '20'
 #   "number_of_pieces" : 2,
+#   "jwt": 'jwt'
 #}
 @app.route('/order/create', methods=['POST'])
 def create_order():
@@ -23,35 +25,39 @@ def create_order():
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
     content = request.json
-
     status = True
     try:      
+        if rsa_singleton.check_jwt(content['jwt']) == False:
+            raise Exception
         new_order =  Order(
             number_of_pieces = content['number_of_pieces'],         
         )    
         session.add(new_order) 
-        session.commit()
-         
-        message_info = {}
-        message_info['orderId'] = new_order.id
-        message_info['userId'] = content['userId']
-        message_info['number_of_pieces'] = new_order.number_of_pieces 
-        message_info['zip'] = content['zip'] 
+        session.commit()         
+        message_info = {
+            'orderId': new_order.id,
+            'userId': content['userId'],
+            'number_of_pieces': new_order.number_of_pieces,
+            'zip': content['zip'],
+            'jwt': content['jwt']
+        }
 
         orchestrator = get_orchestrator()
         order_state = OrderState(message_info['orderId'], message_info['userId'], message_info['number_of_pieces'])
         orchestrator.order_state_list.append(order_state)
         
         send_message("payment_exchange", "payment_reserve_queue", message_info)  
-        send_message("delivery_exchange", "delivery_create_queue", message_info)  
+        #send_message("delivery_exchange", "delivery_create_queue", message_info)  
     except KeyError:
         status = False
         session.rollback()
         session.close()
         abort(BadRequest.code)
 
+    response = jsonify(new_order.as_dict())
+
     session.close()
-    return get_order_response(status)
+    return response#get_order_response(status)
 
 # Respuesta del POST del order.
 # EJEMPLO:

@@ -1,13 +1,11 @@
-import sys
 import pika
 import threading
 from .models import Payment
-from werkzeug.exceptions import BadRequest
-from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound 
-from flask import abort
+from sqlalchemy.orm.exc import NoResultFound
 from .event_publisher import send_message
 from . import Session
 import json
+from .auth import rsa_singleton
 
 class Rabbit():
     def __init__(self, exchange_name, routing_key, callback_func):        
@@ -42,6 +40,8 @@ class Rabbit():
         status = True
         
         try:          
+            if rsa_singleton.check_jwt(content['jwt']) == False:
+                raise Exception            
             user = session.query(Payment).filter(Payment.userId == content['userId']).one()
             money = content['number_of_pieces'] * 10
             if user.money < money:
@@ -54,7 +54,7 @@ class Rabbit():
             session.rollback()     
         content['status'] = status
         content['type'] = 'PAYMENT'
-        send_message("order_exchange", "sagas_queue", content)
+        send_message("order_exchange", "sagas_payment_queue", content)
         session.close()         
 
     # Payment reserve cancell
@@ -64,6 +64,8 @@ class Rabbit():
         session = Session() 
         content = json.loads(body)        
         try:          
+            if rsa_singleton.check_jwt(content['jwt']) == False:
+                raise Exception
             user = session.query(Payment).filter(Payment.userId == content['userId']).one()
             money = content['number_of_pieces'] * 10            
             user.money += money
