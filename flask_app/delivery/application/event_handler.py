@@ -5,7 +5,6 @@ from sqlalchemy.orm.exc import NoResultFound
 from .event_publisher import send_message
 from . import Session
 import json
-from .auth import rsa_singleton
 
 class Rabbit():
     def __init__(self, exchange_name, routing_key, callback_func):        
@@ -40,8 +39,6 @@ class Rabbit():
         status = True
         
         try:  
-            if rsa_singleton.check_jwt(content['jwt']) == False:
-                raise Exception
             new_delivery = Delivery(
                 orderId = content['orderId'],
                 delivered = False,
@@ -67,8 +64,6 @@ class Rabbit():
         session = Session() 
         content = json.loads(body)        
         try:          
-            if rsa_singleton.check_jwt(content['jwt']) == False:
-                raise Exception
             session.query(Delivery).filter(Delivery.orderId == content['orderId']).one().delete()
             session.commit() 
         except:
@@ -80,11 +75,7 @@ class Rabbit():
         print("Delivery update callback", flush=True)        
         session = Session()            
         content = json.loads(body)
-
-        try:
-            if rsa_singleton.check_jwt(content['jwt']) == False:
-                raise Exception
-            
+        try:            
             new_delivery = Delivery(
                 orderId = content['orderId'],
                 delivered = content['delivered'],

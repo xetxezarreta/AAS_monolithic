@@ -38,8 +38,7 @@ def create_order():
             'orderId': new_order.id,
             'userId': content['userId'],
             'number_of_pieces': new_order.number_of_pieces,
-            'zip': content['zip'],
-            'jwt': content['jwt']
+            'zip': content['zip']
         }
 
         orchestrator = get_orchestrator()
@@ -47,7 +46,6 @@ def create_order():
         orchestrator.order_state_list.append(order_state)
         
         send_message("payment_exchange", "payment_reserve_queue", message_info)  
-        #send_message("delivery_exchange", "delivery_create_queue", message_info)  
     except KeyError:
         status = False
         session.rollback()

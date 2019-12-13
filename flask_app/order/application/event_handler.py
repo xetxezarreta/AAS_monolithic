@@ -4,7 +4,6 @@ from .models import Order
 from .event_publisher import send_message
 import json
 from .orchestrator import get_orchestrator
-from .auth import rsa_singleton
 
 class Rabbit():
     def __init__(self, exchange_name, routing_key, callback_func):        
@@ -14,7 +13,6 @@ class Rabbit():
         self.init_handler()
 
     def init_handler(self):
-        print(self.routing_key, flush=True)
         # RabbitConfig
         credentials = pika.PlainCredentials('guest', 'guest')
         parameters = pika.ConnectionParameters('192.168.17.4', 5672, '/', credentials)
@@ -35,14 +33,11 @@ class Rabbit():
     def machine_callback(ch, method, properties, body):
         print("ORDER-machine callback", flush=True)
         content = json.loads(body)        
-
-        if rsa_singleton.check_jwt(content['jwt']) == True:
-            delivery_info = {
-                'orderId': content['orderId'],
-                'jwt': content['jwt'],
-                'delivered': True
-            }
-            send_message("delivery_exchange", "delivery_update_queue", delivery_info)
+        delivery_info = {
+            'orderId': content['orderId'],
+            'delivered': True
+        }
+        send_message("delivery_exchange", "delivery_update_queue", delivery_info)            
 
     @staticmethod
     def sagas_payment_callback(ch, method, properties, body):

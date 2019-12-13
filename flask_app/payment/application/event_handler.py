@@ -5,7 +5,6 @@ from sqlalchemy.orm.exc import NoResultFound
 from .event_publisher import send_message
 from . import Session
 import json
-from .auth import rsa_singleton
 
 class Rabbit():
     def __init__(self, exchange_name, routing_key, callback_func):        
@@ -39,9 +38,7 @@ class Rabbit():
         content = json.loads(body)
         status = True
         
-        try:          
-            if rsa_singleton.check_jwt(content['jwt']) == False:
-                raise Exception            
+        try:                    
             user = session.query(Payment).filter(Payment.userId == content['userId']).one()
             money = content['number_of_pieces'] * 10
             if user.money < money:
@@ -64,8 +61,6 @@ class Rabbit():
         session = Session() 
         content = json.loads(body)        
         try:          
-            if rsa_singleton.check_jwt(content['jwt']) == False:
-                raise Exception
             user = session.query(Payment).filter(Payment.userId == content['userId']).one()
             money = content['number_of_pieces'] * 10            
             user.money += money

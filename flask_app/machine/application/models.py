@@ -39,4 +39,3 @@ class Piece(BaseModel):
     manufacturing_date = Column(DateTime(timezone=True), server_default=None)
     status = Column(String(256), default=STATUS_QUEUED)
     orderId = Column(Integer, nullable=False)
-    jwt = Column(TEXT, nullable=False)

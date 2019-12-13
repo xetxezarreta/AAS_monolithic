@@ -6,7 +6,6 @@ from threading import Thread, Lock, Event
 import sqlalchemy
 from . import Session
 from .event_publisher import send_message
-from .auth import rsa_singleton
 
 class Machine(Thread):
     STATUS_WAITING = "Waiting"
@@ -91,8 +90,7 @@ class Machine(Thread):
 
         if order_finished:            
             order_finished = {
-                'orderId': self.working_piece.orderId,
-                'jwt': self.working_piece.jwt
+                'orderId': self.working_piece.orderId
             }             
             send_message("order_exchange", "machine_queue", order_finished)                                
 

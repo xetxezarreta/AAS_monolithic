@@ -7,7 +7,6 @@ from flask import abort
 from .event_publisher import send_message
 from .machine import Machine
 import json
-from .auth import rsa_singleton
 
 my_machine = Machine()
 
@@ -37,20 +36,15 @@ class Rabbit():
         session = Session()        
         content = json.loads(body)
         try:
-            if rsa_singleton.check_jwt(content['jwt']) == False:
-                raise Exception 
             number_of_pieces = content['number_of_pieces']
             pieces_list = list()
             for _ in range(number_of_pieces):
                 piece = Piece()
-                piece.orderId = content['orderId']     
-                piece.jwt = content['jwt']       
+                piece.orderId = content['orderId']       
                 session.add(piece)    
                 session.commit()     
-                session.refresh(piece)
-                print(piece)      
-                pieces_list.append(piece)
-                
+                session.refresh(piece)      
+                pieces_list.append(piece)                
             if pieces_list: # miramos si hay elemento en la lista.
                 my_machine.add_pieces_to_queue(pieces_list)        
         except Exception as e:
