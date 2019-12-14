@@ -26,23 +26,34 @@ class BLConsul:
             BLConsul.__instance = self
 
     def init_and_register(self, app):
+        print('11111111111', flush=True)
+        print(app, flush=True)
         self.consul = Consul(app=app)
         self.register_service()
 
     def register_service(self):
-        self.consul.register_service(
-            service_id=config.SERVICE_ID,
-            name=config.SERVICE_NAME,
-            interval='10s',
-            tags=['flask', 'microservice', 'aas'],
-            port=config.PORT,
-            address=config.IP,
-            httpcheck='http://{host}:{port}/{service_name}/health'.format(
-                host=config.IP,
+        print('2222222222', flush=True)
+        print(config.IP, flush=True)
+        print(config.PORT, flush=True)
+        print(config.SERVICE_NAME, flush=True)
+        try:
+            self.consul.register_service(
+                service_id=config.SERVICE_ID,
+                name=config.SERVICE_NAME,
+                interval='10s',
+                tags=['flask', 'microservice', 'aas'],
                 port=config.PORT,
-                service_name=config.SERVICE_NAME
-            )
-        )
+                address=config.IP,
+                httpcheck='http://{host}:{port}/{service_name}/health'.format(
+                    host=config.IP,
+                    port=config.PORT,
+                    service_name=config.SERVICE_NAME
+                )
+            )      
+        except Exception as e:
+            print(e, flush=True)
+       
+        print('3333333333333', flush=True)  
     
     def get_service(self, service_name):
         ret = {

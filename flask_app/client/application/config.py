@@ -12,11 +12,11 @@ class Config:
     SQLALCHEMY_DATABASE_URI = environ.get("SQLALCHEMY_DATABASE_URI")
     SQLALCHEMY_TRACK_MODIFICATIONS = environ.get("SQLALCHEMY_TRACK_MODIFICATIONS")
     # Consul
-    CONSUL_HOST = environ.get("CONSUL_HOST", "192.168.17.16")
-    PORT = int(environ.get("PORT", '13000'))
+    CONSUL_HOST = environ.get("CONSUL_HOST", "192.168.17.16")    
     SERVICE_NAME = environ.get("SERVICE_NAME", "client")
     SERVICE_ID = environ.get("SERVICE_ID", "client")
     IP = None
+    PORT = int(environ.get("PORT", '13000'))
 
     __instance = None
 
@@ -37,8 +37,10 @@ class Config:
     def get_ip(self):
         ifaces = ni.interfaces()
         if "br-ca1e5a751726" in ifaces:  # this is for my specific iface for debugging.
+            print('aaaaaaaaa', flush=True)
             self.IP = Config.get_ip_iface("br-ca1e5a751726")
         elif "eth0" in ifaces:  # this is the default interface in docker
+            print('bbbbbbbbb', flush=True)
             self.IP = Config.get_ip_iface("eth0")
         else:
             self.IP = "127.0.0.1"

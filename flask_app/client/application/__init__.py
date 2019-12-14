@@ -15,12 +15,12 @@ Session = scoped_session(
 
 def create_app():
     """Construct the core application."""
-    app = Flask(__name__, instance_relative_config=False)
+    app = Flask(__name__, instance_relative_config=False)    
 
     with app.app_context():
         from . import routes
-        from . import models               
-        models.Base.metadata.create_all(engine)        
-        consul = BLConsul.get_instance()
-        consul.init_and_register(app)
+        from . import models
+        consul = BLConsul.get_instance()        
+        consul.init_and_register(app)               
+        models.Base.metadata.create_all(engine)      
         return app

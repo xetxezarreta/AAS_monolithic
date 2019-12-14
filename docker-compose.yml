@@ -19,7 +19,11 @@ services:
     ports:
       - '${CLIENT_PORT}:${GUNICORN_PORT}'
     volumes:
-      - './flask_app/client:/app'        
+      - './flask_app/client:/app' 
+    networks: 
+      lb4_network:         
+    depends_on: 
+      - consul 
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
@@ -27,7 +31,7 @@ services:
       SERVICE_NAME: 'client'
       SERVICE_ID: 'client'
       CONSUL_HOST: '${CONSUL_IP}'
-      PORT: '${CLIENT_PORT}'
+      PORT: '${GUNICORN_PORT}'
       PYTHONUNBUFFERED: 1
     restart: on-failure
   # ---------------------------------------------------
@@ -151,6 +155,7 @@ services:
       - 'LOGGER_PORT=${GUNICORN_PORT}'
       - 'HAPROXY_PORT=${HAPROXY_PORT}'
       - 'HAPROXY_STATS_PORT=${HAPROXY_STATS_PORT}'
+      - 'CONSUL_HOST=${CONSUL_IP}'
     restart: unless-stopped
   # ---------------------------------------------------
   # CONSUL
