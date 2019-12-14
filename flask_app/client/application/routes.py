@@ -9,6 +9,7 @@ import jwt
 from .mycrypto import rsa_singleton
 import datetime
 import json
+from .log import create_log
 
 # Client Routes #########################################################################################################
 @app.route('/client/create', methods=['POST'])
@@ -25,8 +26,10 @@ def create_client():
             role = content['role']
         )
         session.add(new_client)  
-        session.commit()        
-    except KeyError:
+        session.commit()       
+        create_log(__file__, 'New client created')
+    except Exception as e:
+        create_log(__file__, str(e))
         session.rollback()
         session.close()
         abort(BadRequest.code)
@@ -55,8 +58,9 @@ def create_jwt():
         response = {
             'jwt': jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256').decode("utf-8") 
         }
+        create_log(__file__, 'New JWT created')
     except Exception as e:
-        print(e, flush=True)
+        create_log(__file__, str(e))
         session.rollback()
         session.close()
         abort(BadRequest.code)
@@ -69,6 +73,12 @@ def get_public_key():
     content = {}
     content['public_key'] = rsa_singleton.get_public_key().decode()
     return content    
+
+# Health-check #######################################################################################################
+@app.route('/health', methods=['HEAD', 'GET'])
+def health_check():
+    print("HEALTHCHECK", flush=True)
+    return "OK"
 
 # Error Handling #######################################################################################################
 @app.errorhandler(UnsupportedMediaType)

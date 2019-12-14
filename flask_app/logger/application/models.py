@@ -1,10 +1,10 @@
-from sqlalchemy import Column, DateTime, Integer, String, TEXT, ForeignKey
+from sqlalchemy import Column, DateTime, Integer, String, TEXT, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
+import json
 
 Base = declarative_base()
-
 
 class BaseModel(Base):
     __abstract__ = True
@@ -27,15 +27,11 @@ class BaseModel(Base):
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
-class Piece(BaseModel):
-    STATUS_CREATED = "Created"
-    STATUS_CANCELLED = "Cancelled"
-    STATUS_QUEUED = "Queued"
-    STATUS_MANUFACTURING = "Manufacturing"
-    STATUS_MANUFACTURED = "Manufactured"
 
-    __tablename__ = "piece"
-    ref = Column(Integer, primary_key=True)
-    manufacturing_date = Column(DateTime(timezone=True), server_default=None)
-    status = Column(String(256), default=STATUS_QUEUED)
-    orderId = Column(Integer, nullable=False)
+class Logger(BaseModel):
+    __tablename__ = "Logger"
+    id = Column(Integer, primary_key=True)
+    microservice = Column(String(256), nullable=False)
+    filename = Column(String(256), nullable=False)
+    message = Column(String(1024), nullable=False)
+    

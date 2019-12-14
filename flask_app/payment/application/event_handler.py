@@ -5,7 +5,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from .event_publisher import send_message
 from . import Session
 import json
-from .auth import rsa_singleton
+from .log import create_log
 
 class Rabbit():
     def __init__(self, exchange_name, routing_key, callback_func):        
@@ -39,9 +39,7 @@ class Rabbit():
         content = json.loads(body)
         status = True
         
-        try:          
-            if rsa_singleton.check_jwt(content['jwt']) == False:
-                raise Exception            
+        try:                    
             user = session.query(Payment).filter(Payment.userId == content['userId']).one()
             money = content['number_of_pieces'] * 10
             if user.money < money:
@@ -49,12 +47,14 @@ class Rabbit():
             user.money -= money
             user.reserved += money
             session.commit() 
-        except:
+            create_log(__file__, 'Payment reserved') 
+        except Exception as e:
+            create_log(__file__, str(e)) 
             status = False
             session.rollback()     
         content['status'] = status
         content['type'] = 'PAYMENT'
-        send_message("order_exchange", "sagas_payment_queue", content)
+        send_message("payment_exchange", "sagas_payment_queue", content)
         session.close()         
 
     # Payment reserve cancell
@@ -64,14 +64,14 @@ class Rabbit():
         session = Session() 
         content = json.loads(body)        
         try:          
-            if rsa_singleton.check_jwt(content['jwt']) == False:
-                raise Exception
             user = session.query(Payment).filter(Payment.userId == content['userId']).one()
             money = content['number_of_pieces'] * 10            
             user.money += money
             user.reserved -= money
             session.commit() 
-        except:
+            create_log(__file__, 'Payment reserve cancelled') 
+        except Exception as e:
+            create_log(__file__, str(e)) 
             session.rollback()     
         session.close()  
         

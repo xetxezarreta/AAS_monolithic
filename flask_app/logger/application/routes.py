@@ -1,20 +1,17 @@
 from flask import request, jsonify, abort
 from flask import current_app as app
-from .models import Delivery
+from .models import Logger
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
 import traceback
 from . import Session
-from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound 
-from .log import create_log
 
-# Delivery Routes #########################################################################################################
-@app.route('/delivery/deliveries', methods=['GET'])
+# Logger Routes #########################################################################################################
+@app.route('/logger/logs', methods=['GET'])
 def view_deliveries():
     session = Session()
-    deliveries = session.query(Delivery).all()
-    response = jsonify(Delivery.list_as_dict(deliveries))
+    logs = session.query(Logger).all()
+    response = jsonify(Logger.list_as_dict(logs))
     session.close()
-    create_log(__file__, 'View deliveries requested')
     return response
 
 # Health-check #######################################################################################################

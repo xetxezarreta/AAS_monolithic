@@ -5,7 +5,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from .event_publisher import send_message
 from . import Session
 import json
-from .auth import rsa_singleton
+from .log import create_log
 
 class Rabbit():
     def __init__(self, exchange_name, routing_key, callback_func):        
@@ -40,8 +40,6 @@ class Rabbit():
         status = True
         
         try:  
-            if rsa_singleton.check_jwt(content['jwt']) == False:
-                raise Exception
             new_delivery = Delivery(
                 orderId = content['orderId'],
                 delivered = False,
@@ -49,6 +47,7 @@ class Rabbit():
             if content['zip'] == '01' or content['zip'] == '20' or content['zip'] == '48':
                 session.add(new_delivery) 
                 session.commit()
+                create_log(__file__, 'Delivery created')
             else:
                 status = False
         except:
@@ -57,7 +56,7 @@ class Rabbit():
              
         content['status'] = status
         content['type'] = 'DELIVERY'
-        send_message("order_exchange", "sagas_delivery_queue", content)
+        send_message("delivery_exchange", "sagas_delivery_queue", content)
         session.close()         
 
     # Payment reserve cancell
@@ -67,11 +66,11 @@ class Rabbit():
         session = Session() 
         content = json.loads(body)        
         try:          
-            if rsa_singleton.check_jwt(content['jwt']) == False:
-                raise Exception
             session.query(Delivery).filter(Delivery.orderId == content['orderId']).one().delete()
             session.commit() 
-        except:
+            create_log(__file__, 'Delivery cancelled')
+        except Exception as e:
+            create_log(__file__, str(e))
             session.rollback()     
         session.close()  
 
@@ -80,23 +79,16 @@ class Rabbit():
         print("Delivery update callback", flush=True)        
         session = Session()            
         content = json.loads(body)
-
-        try:
-            if rsa_singleton.check_jwt(content['jwt']) == False:
-                raise Exception
-            
+        try:            
             new_delivery = Delivery(
                 orderId = content['orderId'],
                 delivered = content['delivered'],
             )
-            try:
-                delivery = session.query(Delivery).filter(Delivery.orderId == new_delivery.orderId).one()
-                delivery.delivered = new_delivery.delivered
-                print(delivery)
-                session.commit()
-            except NoResultFound:     
-                print("no existe el pedido")                  
-        except KeyError:
+            delivery = session.query(Delivery).filter(Delivery.orderId == new_delivery.orderId).one()
+            delivery.delivered = new_delivery.delivered               
+            session.commit()
+            create_log(__file__, 'Delivery updated')         
+        except Exception as e:
             session.rollback()
-
+            create_log(__file__, str(e))
         session.close()

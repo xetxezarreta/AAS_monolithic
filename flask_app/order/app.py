@@ -5,10 +5,9 @@ from application.auth import rsa_singleton
 app = create_app()
 
 # create rabbitmq queues
-exchange_name = 'order_exchange'
-Rabbit(exchange_name, 'machine_queue', Rabbit.machine_callback)
-Rabbit(exchange_name, 'sagas_payment_queue', Rabbit.sagas_payment_callback)
-Rabbit(exchange_name, 'sagas_delivery_queue', Rabbit.sagas_delivery_callback)
+Rabbit('machine_exchange', 'machine_queue_response', Rabbit.machine_response)
+Rabbit('payment_exchange', 'sagas_payment_queue', Rabbit.payment_response)
+Rabbit('delivery_exchange', 'sagas_delivery_queue', Rabbit.delivery_response)
 
 # request jwt public key
 rsa_singleton.request_public_key()

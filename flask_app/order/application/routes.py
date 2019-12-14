@@ -10,6 +10,7 @@ from .event_publisher import send_message
 from .orchestrator import get_orchestrator
 from .state import OrderState
 from .auth import rsa_singleton
+from .log import create_log
 
 # Order Routes #########################################################################################################
 #{
@@ -33,13 +34,13 @@ def create_order():
             number_of_pieces = content['number_of_pieces'],         
         )    
         session.add(new_order) 
-        session.commit()         
+        session.commit()        
+        create_log(__file__, 'Order created') 
         message_info = {
             'orderId': new_order.id,
             'userId': content['userId'],
             'number_of_pieces': new_order.number_of_pieces,
-            'zip': content['zip'],
-            'jwt': content['jwt']
+            'zip': content['zip']
         }
 
         orchestrator = get_orchestrator()
@@ -47,7 +48,6 @@ def create_order():
         orchestrator.order_state_list.append(order_state)
         
         send_message("payment_exchange", "payment_reserve_queue", message_info)  
-        #send_message("delivery_exchange", "delivery_create_queue", message_info)  
     except KeyError:
         status = False
         session.rollback()
@@ -57,17 +57,13 @@ def create_order():
     response = jsonify(new_order.as_dict())
 
     session.close()
-    return response#get_order_response(status)
-
-# Respuesta del POST del order.
-# EJEMPLO:
-#{
-#    "status": true
-#}
-def get_order_response(status):
-    response = {}
-    response['status'] = status
     return response
+
+# Health-check #######################################################################################################
+@app.route('/health', methods=['HEAD', 'GET'])
+def health_check():
+    print("HEALTHCHECK", flush=True)
+    return "OK"
 
 # Error Handling #######################################################################################################
 @app.errorhandler(UnsupportedMediaType)
