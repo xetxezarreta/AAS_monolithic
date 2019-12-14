@@ -74,6 +74,12 @@ def get_public_key():
     content['public_key'] = rsa_singleton.get_public_key().decode()
     return content    
 
+# Health-check #######################################################################################################
+@app.route('/health', methods=['HEAD', 'GET'])
+def health_check():
+    print("HEALTHCHECK", flush=True)
+    return "OK"
+
 # Error Handling #######################################################################################################
 @app.errorhandler(UnsupportedMediaType)
 def unsupported_media_type_handler(e):

@@ -14,6 +14,12 @@ def view_deliveries():
     session.close()
     return response
 
+# Health-check #######################################################################################################
+@app.route('/health', methods=['HEAD', 'GET'])
+def health_check():
+    print("HEALTHCHECK", flush=True)
+    return "OK"
+
 # Error Handling #######################################################################################################
 @app.errorhandler(UnsupportedMediaType)
 def unsupported_media_type_handler(e):

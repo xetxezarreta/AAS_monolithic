@@ -17,13 +17,11 @@ def view_deliveries():
     create_log(__file__, 'View deliveries requested')
     return response
 
-# Database clean #######################################################################################################
-@app.route('/delivery/clean_delivery', methods=['GET'])
-def clean_payments_database():
-    session = Session()
-    session.query(Delivery).delete()
-    session.close()
-    return " filas eliminadas de payment"
+# Health-check #######################################################################################################
+@app.route('/health', methods=['HEAD', 'GET'])
+def health_check():
+    print("HEALTHCHECK", flush=True)
+    return "OK"
 
 # Error Handling #######################################################################################################
 @app.errorhandler(UnsupportedMediaType)

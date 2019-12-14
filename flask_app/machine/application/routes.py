@@ -18,18 +18,11 @@ def view_machine_status():
     response = {"status": my_machine.status, "working_piece": working_piece, "queue": list(queue)}
     return jsonify(response)
 
-# Respuesta del POST del machine.
-# Si la operación es correcta, status=True
-# Si la operación no es correcta, status=False
-# EJEMPLO:
-#{
-#    "status": true
-#}
-def get_machine_response(status):
-    response = {}
-    response['status'] = status
-    return response
-
+# Health-check #######################################################################################################
+@app.route('/health', methods=['HEAD', 'GET'])
+def health_check():
+    print("HEALTHCHECK", flush=True)
+    return "OK"
 
 # Error Handling #######################################################################################################
 @app.errorhandler(UnsupportedMediaType)

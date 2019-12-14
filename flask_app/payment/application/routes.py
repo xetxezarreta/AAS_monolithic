@@ -51,13 +51,11 @@ def perform_deposit():
     session.close()
     return response
 
-# Database clean #######################################################################################################
-@app.route('/payment/clean_payment', methods=['GET'])
-def clean_payments_database():
-    session = Session()
-    session.query(Payment).delete()
-    session.close()
-    return " filas eliminadas de payment"
+# Health-check #######################################################################################################
+@app.route('/health', methods=['HEAD', 'GET'])
+def health_check():
+    print("HEALTHCHECK", flush=True)
+    return "OK"
 
 # Error Handling #######################################################################################################
 @app.errorhandler(UnsupportedMediaType)
