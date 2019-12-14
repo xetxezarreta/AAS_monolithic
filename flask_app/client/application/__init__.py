@@ -19,5 +19,8 @@ def create_app():
     with app.app_context():
         from . import routes
         from . import models
+        from . import blconsul
         models.Base.metadata.create_all(engine)
+        consul = blconsul.BLConsul.get_instance()
+        consul.init_and_register(app)
         return app
