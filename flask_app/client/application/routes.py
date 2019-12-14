@@ -29,7 +29,7 @@ def create_client():
         session.commit()       
         create_log(__file__, 'New client created')
     except Exception as e:
-        create_log(__file__, e)
+        create_log(__file__, str(e))
         session.rollback()
         session.close()
         abort(BadRequest.code)
@@ -60,7 +60,7 @@ def create_jwt():
         }
         create_log(__file__, 'New JWT created')
     except Exception as e:
-        create_log(__file__, e)
+        create_log(__file__, str(e))
         session.rollback()
         session.close()
         abort(BadRequest.code)

@@ -5,6 +5,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from .event_publisher import send_message
 from . import Session
 import json
+from .log import create_log
 
 class Rabbit():
     def __init__(self, exchange_name, routing_key, callback_func):        
@@ -46,7 +47,9 @@ class Rabbit():
             user.money -= money
             user.reserved += money
             session.commit() 
-        except:
+            create_log(__file__, 'Payment reserved') 
+        except Exception as e:
+            create_log(__file__, str(e)) 
             status = False
             session.rollback()     
         content['status'] = status
@@ -66,7 +69,9 @@ class Rabbit():
             user.money += money
             user.reserved -= money
             session.commit() 
-        except:
+            create_log(__file__, 'Payment reserve cancelled') 
+        except Exception as e:
+            create_log(__file__, str(e)) 
             session.rollback()     
         session.close()  
         

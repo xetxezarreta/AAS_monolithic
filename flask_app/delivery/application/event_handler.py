@@ -70,7 +70,7 @@ class Rabbit():
             session.commit() 
             create_log(__file__, 'Delivery cancelled')
         except Exception as e:
-            create_log(__file__, e)
+            create_log(__file__, str(e))
             session.rollback()     
         session.close()  
 
@@ -90,5 +90,5 @@ class Rabbit():
             create_log(__file__, 'Delivery updated')         
         except Exception as e:
             session.rollback()
-            create_log(__file__, e)
+            create_log(__file__, str(e))
         session.close()

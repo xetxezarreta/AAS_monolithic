@@ -146,6 +146,8 @@ services:
       - 'MACHINE_PORT=${GUNICORN_PORT}'
       - 'PAYMENT_IP=${PAYMENT_IP}'
       - 'PAYMENT_PORT=${GUNICORN_PORT}'
+      - 'LOGGER_IP=${LOGGER_IP}'
+      - 'LOGGER_PORT=${GUNICORN_PORT}'
       - 'HAPROXY_PORT=${HAPROXY_PORT}'
       - 'HAPROXY_STATS_PORT=${HAPROXY_STATS_PORT}'
     restart: unless-stopped

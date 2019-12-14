@@ -6,6 +6,7 @@ import traceback
 from . import Session
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound 
 from .auth import rsa_singleton
+from .log import create_log
 
 # Payment Routes #########################################################################################################
 # Este POST deposita el dinero de un usuario.
@@ -32,16 +33,16 @@ def perform_deposit():
             userId=content['userId'],
             money=content['money'],   
             reserved=0,      
-        )             
+        )    
         try:           
             user = session.query(Payment).filter(Payment.userId == new_payment.userId).one()
             user.money += new_payment.money 
-            print(user)
         except NoResultFound:     
-            session.add(new_payment)    
-
+            session.add(new_payment)         
         session.commit()
-    except KeyError:
+        create_log(__file__, 'Deposit performed by user '+str(new_payment.userId))   
+    except Exception as e:
+        create_log(__file__, str(e))   
         session.rollback()
         session.close()
         abort(BadRequest.code)
