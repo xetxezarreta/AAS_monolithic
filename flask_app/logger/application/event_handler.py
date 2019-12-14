@@ -38,13 +38,13 @@ class Rabbit():
         print(content, flush=True)
         try:
             new_log = Logger(
-                log = str(content)
+                microservice = content['microservice'],
+                filename = content['filename'],
+                message = content['message']
             )
             session.add(new_log) 
             session.commit()
         except Exception as e:
             print(e, flush=True)   
             session.rollback()   
-        session.close()    
-        
-            
+        session.close()               

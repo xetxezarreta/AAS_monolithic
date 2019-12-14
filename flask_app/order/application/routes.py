@@ -10,6 +10,7 @@ from .event_publisher import send_message
 from .orchestrator import get_orchestrator
 from .state import OrderState
 from .auth import rsa_singleton
+from .log import create_log
 
 # Order Routes #########################################################################################################
 #{
@@ -33,7 +34,8 @@ def create_order():
             number_of_pieces = content['number_of_pieces'],         
         )    
         session.add(new_order) 
-        session.commit()         
+        session.commit()        
+        create_log(__file__, 'Order created') 
         message_info = {
             'orderId': new_order.id,
             'userId': content['userId'],

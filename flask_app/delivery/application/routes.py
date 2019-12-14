@@ -5,15 +5,16 @@ from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, Unsup
 import traceback
 from . import Session
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound 
+from .log import create_log
 
 # Delivery Routes #########################################################################################################
 @app.route('/delivery/deliveries', methods=['GET'])
 def view_deliveries():
     session = Session()
-    print("GET All Deliveries.")
     deliveries = session.query(Delivery).all()
     response = jsonify(Delivery.list_as_dict(deliveries))
     session.close()
+    create_log(__file__, 'View deliveries requested')
     return response
 
 # Database clean #######################################################################################################

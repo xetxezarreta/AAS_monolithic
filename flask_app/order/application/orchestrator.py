@@ -13,7 +13,8 @@ class Orchestrator(object):
 
         if message['type'] == 'DELIVERY':
             order_state.treat_delivery(message)
-            if order_state.state.get_state() == 'ACCEPTED DELIVERY':          
+            if order_state.state.get_state() == 'ACCEPTED DELIVERY':     
+                print(type(message), flush=True)    
                 send_message("machine_exchange", "machine_queue", message)
             else:
                 send_message("payment_exchange", "payment_reserve_cancell_queue", message)

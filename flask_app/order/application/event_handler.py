@@ -30,7 +30,7 @@ class Rabbit():
     
     # Machine callback
     @staticmethod
-    def machine_callback(ch, method, properties, body):
+    def machine_response(ch, method, properties, body):
         print("ORDER-machine callback", flush=True)
         content = json.loads(body)        
         delivery_info = {
@@ -40,14 +40,14 @@ class Rabbit():
         send_message("delivery_exchange", "delivery_update_queue", delivery_info)            
 
     @staticmethod
-    def sagas_payment_callback(ch, method, properties, body):
+    def payment_response(ch, method, properties, body):
         content = json.loads(body)
         orchestrator = get_orchestrator()
         orchestrator.treat_message(content)
 
     # Sagas callback for Delivery
     @staticmethod
-    def sagas_delivery_callback(ch, method, properties, body):
+    def delivery_response(ch, method, properties, body):
         content = json.loads(body)
         orchestrator = get_orchestrator()
         orchestrator.treat_message(content)

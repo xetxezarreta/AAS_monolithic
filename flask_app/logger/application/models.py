@@ -6,7 +6,6 @@ import json
 
 Base = declarative_base()
 
-
 class BaseModel(Base):
     __abstract__ = True
     creation_date = Column(DateTime(timezone=True), server_default=func.now())
@@ -30,7 +29,9 @@ class BaseModel(Base):
 
 
 class Logger(BaseModel):
-    __tablename__ = "Delivery"
+    __tablename__ = "Logger"
     id = Column(Integer, primary_key=True)
-    log = Column(String(1024), nullable=False)
+    microservice = Column(String(256), nullable=False)
+    filename = Column(String(256), nullable=False)
+    message = Column(String(1024), nullable=False)
     

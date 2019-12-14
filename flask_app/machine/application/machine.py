@@ -6,6 +6,7 @@ from threading import Thread, Lock, Event
 import sqlalchemy
 from . import Session
 from .event_publisher import send_message
+from .log import create_log
 
 class Machine(Thread):
     STATUS_WAITING = "Waiting"
@@ -92,7 +93,8 @@ class Machine(Thread):
             order_finished = {
                 'orderId': self.working_piece.orderId
             }             
-            send_message("machine_exchange", "machine_queue", order_finished)                                
+            create_log(__file__, str(self.working_piece.orderId) + ' order finished on machine')
+            send_message("machine_exchange", "machine_queue_response", order_finished)                                
 
         self.thread_session.commit()
         self.thread_session.flush()

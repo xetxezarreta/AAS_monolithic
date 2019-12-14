@@ -5,6 +5,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from .event_publisher import send_message
 from . import Session
 import json
+from .log import create_log
 
 class Rabbit():
     def __init__(self, exchange_name, routing_key, callback_func):        
@@ -46,6 +47,7 @@ class Rabbit():
             if content['zip'] == '01' or content['zip'] == '20' or content['zip'] == '48':
                 session.add(new_delivery) 
                 session.commit()
+                create_log(__file__, 'Delivery created')
             else:
                 status = False
         except:
@@ -66,7 +68,9 @@ class Rabbit():
         try:          
             session.query(Delivery).filter(Delivery.orderId == content['orderId']).one().delete()
             session.commit() 
-        except:
+            create_log(__file__, 'Delivery cancelled')
+        except Exception as e:
+            create_log(__file__, e)
             session.rollback()     
         session.close()  
 
@@ -80,14 +84,11 @@ class Rabbit():
                 orderId = content['orderId'],
                 delivered = content['delivered'],
             )
-            try:
-                delivery = session.query(Delivery).filter(Delivery.orderId == new_delivery.orderId).one()
-                delivery.delivered = new_delivery.delivered
-                print(delivery)
-                session.commit()
-            except NoResultFound:     
-                print("no existe el pedido")                  
-        except KeyError:
+            delivery = session.query(Delivery).filter(Delivery.orderId == new_delivery.orderId).one()
+            delivery.delivered = new_delivery.delivered               
+            session.commit()
+            create_log(__file__, 'Delivery updated')         
+        except Exception as e:
             session.rollback()
-
+            create_log(__file__, e)
         session.close()
