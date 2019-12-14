@@ -3,7 +3,7 @@ from flask_consulate import Consul
 from flask import Flask
 import dns
 
-config = Config()
+config = Config.get_instance()
 consul_resolver = dns.resolver.Resolver(configure=False)
 consul_resolver.port = 8600
 consul_resolver.nameservers = [config.CONSUL_HOST]
@@ -37,7 +37,7 @@ class BLConsul:
             tags=['flask', 'microservice', 'aas'],
             port=config.PORT,
             address=config.IP,
-            httpcheck='http://{host}:{port}/health'.format(
+            httpcheck='http://{host}:{port}/{service_name}/health'.format(
                 host=config.IP,
                 port=config.PORT,
                 service_name=config.SERVICE_NAME

@@ -16,6 +16,8 @@ services:
   # ---------------------------------------------------
   client:
     build: ./flask_app
+    ports:
+      - '${CLIENT_PORT}:${GUNICORN_PORT}'
     volumes:
       - './flask_app/client:/app'        
     environment:
@@ -25,7 +27,7 @@ services:
       SERVICE_NAME: 'client'
       SERVICE_ID: 'client'
       CONSUL_HOST: '${CONSUL_IP}'
-      PORT: 13000
+      PORT: '${CLIENT_PORT}'
       PYTHONUNBUFFERED: 1
     restart: on-failure
   # ---------------------------------------------------

@@ -75,7 +75,7 @@ def get_public_key():
     return content    
 
 # Health-check #######################################################################################################
-@app.route('/health', methods=['HEAD', 'GET'])
+@app.route('/client/health', methods=['HEAD', 'GET'])
 def health_check():
     print("HEALTHCHECK", flush=True)
     return "OK"
