@@ -112,12 +112,15 @@ services:
       - './flask_app/payment:/app'
     networks: 
       lb4_network: 
-        ipv4_address: '${PAYMENT_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
-      # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+      SERVICE_NAME: 'payment'
+      SERVICE_ID: 'payment'
+      CONSUL_HOST: '${CONSUL_IP}'
+      PORT: '${GUNICORN_PORT}'
+      PYTHONUNBUFFERED: 1
     restart: on-failure
   # ---------------------------------------------------
   # LOGGER
