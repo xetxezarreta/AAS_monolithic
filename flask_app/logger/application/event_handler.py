@@ -23,8 +23,7 @@ class Rabbit():
         # Create queue
         result = channel.queue_declare(queue='', exclusive=True)
         queue_name = result.method.queue
-        channel.queue_bind(exchange=self.exchange_name, queue=queue_name, routing_key='logger_queue.info')
-        channel.queue_bind(exchange=self.exchange_name, queue=queue_name, routing_key='logger_queue.error')
+        channel.queue_bind(exchange=self.exchange_name, queue=queue_name, routing_key='*.*')
         channel.basic_consume(queue=queue_name, on_message_callback=self.callback_func, auto_ack=True)
         thread = threading.Thread(target=channel.start_consuming)
         thread.start()      

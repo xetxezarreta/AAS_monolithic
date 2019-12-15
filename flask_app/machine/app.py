@@ -6,7 +6,7 @@ app = create_app()
 Rabbit('machine_exchange', 'machine_queue', Rabbit.machine_callback)
 
 # request jwt public key
-rsa_singleton.request_public_key()
+#rsa_singleton.request_public_key()
 
 app.app_context().push()
 
