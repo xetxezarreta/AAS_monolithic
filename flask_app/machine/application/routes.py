@@ -19,6 +19,7 @@ def view_machine_status():
     return jsonify(response)
 
 # Health-check #######################################################################################################
+@app.route('/machine/health', methods=['HEAD', 'GET'])
 @app.route('/health', methods=['HEAD', 'GET'])
 def health_check():
     print("HEALTHCHECK", flush=True)

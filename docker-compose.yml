@@ -19,15 +19,20 @@ services:
     ports:
       - '${CLIENT_PORT}:${GUNICORN_PORT}'
     volumes:
-      - './flask_app/client:/app'
+      - './flask_app/client:/app' 
     networks: 
-      lb4_network: 
-        ipv4_address: '${CLIENT_IP}'
+      lb4_network:         
+    depends_on: 
+      - consul 
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
-      # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+      SERVICE_NAME: 'client'
+      SERVICE_ID: 'client'
+      CONSUL_HOST: '${CONSUL_IP}'
+      PORT: '${GUNICORN_PORT}'
+      PYTHONUNBUFFERED: 1
     restart: on-failure
   # ---------------------------------------------------
   # DELIVERY
@@ -40,12 +45,17 @@ services:
       - './flask_app/delivery:/app'
     networks: 
       lb4_network: 
-        ipv4_address: '${DELIVERY_IP}'
+    depends_on: 
+      - consul 
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
-      # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+      SERVICE_NAME: 'delivery'
+      SERVICE_ID: 'delivery'
+      CONSUL_HOST: '${CONSUL_IP}'
+      PORT: '${GUNICORN_PORT}'
+      PYTHONUNBUFFERED: 1
     restart: on-failure
   # ---------------------------------------------------
   # MACHINE
@@ -58,12 +68,17 @@ services:
       - './flask_app/machine:/app'
     networks: 
       lb4_network: 
-        ipv4_address: '${MACHINE_IP}'
+    depends_on: 
+      - consul 
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
-      # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+      SERVICE_NAME: 'machine'
+      SERVICE_ID: 'machine'
+      CONSUL_HOST: '${CONSUL_IP}'
+      PORT: '${GUNICORN_PORT}'
+      PYTHONUNBUFFERED: 1
     restart: on-failure
   # ---------------------------------------------------
   # ORDER
@@ -76,12 +91,15 @@ services:
       - './flask_app/order:/app'
     networks: 
       lb4_network: 
-        ipv4_address: '${ORDER_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
-      # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+      SERVICE_NAME: 'order'
+      SERVICE_ID: 'order'
+      CONSUL_HOST: '${CONSUL_IP}'
+      PORT: '${GUNICORN_PORT}'
+      PYTHONUNBUFFERED: 1
     restart: on-failure
   # ---------------------------------------------------
   # PAYMENT
@@ -94,12 +112,15 @@ services:
       - './flask_app/payment:/app'
     networks: 
       lb4_network: 
-        ipv4_address: '${PAYMENT_IP}'
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
-      # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+      SERVICE_NAME: 'payment'
+      SERVICE_ID: 'payment'
+      CONSUL_HOST: '${CONSUL_IP}'
+      PORT: '${GUNICORN_PORT}'
+      PYTHONUNBUFFERED: 1
     restart: on-failure
   # ---------------------------------------------------
   # LOGGER
@@ -112,12 +133,17 @@ services:
       - './flask_app/logger:/app'
     networks: 
       lb4_network: 
-        ipv4_address: '${LOGGER_IP}'
+    depends_on: 
+      - consul 
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
-      # SQLALCHEMY_DATABASE_URI: 'mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_DATABASE_URI}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+      SERVICE_NAME: 'logger'
+      SERVICE_ID: 'logger'
+      CONSUL_HOST: '${CONSUL_IP}'
+      PORT: '${GUNICORN_PORT}'
+      PYTHONUNBUFFERED: 1
     restart: on-failure
   # ---------------------------------------------------
   # HAPROXY
@@ -150,20 +176,23 @@ services:
       - 'LOGGER_PORT=${GUNICORN_PORT}'
       - 'HAPROXY_PORT=${HAPROXY_PORT}'
       - 'HAPROXY_STATS_PORT=${HAPROXY_STATS_PORT}'
+      - 'CONSUL_HOST=${CONSUL_IP}'
     restart: unless-stopped
   # ---------------------------------------------------
-  # DATABASE
+  # CONSUL
   # ---------------------------------------------------
-  db:
-    image: mysql
-    restart: always
-    ports:
-      - '13306:${MYSQL_PORT}'
-    environment:
-      MYSQL_DATABASE: '${MYSQL_DATABASE}'
-      MYSQL_USER: '${MYSQL_USER}'
-      MYSQL_PASSWORD: '${MYSQL_PASSWORD}'
-      MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD}'
+  consul:
+      image: 'consul:latest'
+      ports:
+        - '8300:8300'
+        - '8301:8301'
+        - '8301:8301/udp'
+        - '8500:8500'
+        - '8600:8600'
+        - '8600:8600/udp'
+      networks:
+        lb4_network:
+          ipv4_address: '${CONSUL_IP}'
 networks:
   lb4_network:
     driver: bridge

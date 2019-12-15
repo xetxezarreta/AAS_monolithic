@@ -52,6 +52,7 @@ def perform_deposit():
     return response
 
 # Health-check #######################################################################################################
+@app.route('/payment/health', methods=['HEAD', 'GET'])
 @app.route('/health', methods=['HEAD', 'GET'])
 def health_check():
     print("HEALTHCHECK", flush=True)
