@@ -24,7 +24,7 @@ pika==1.1.0
 bcrypt==3.1.7
 
 # PyJWT
-PyJWT==1.7.1
+PyJWT==2.4.0
 
 # crypto
 pycryptodome
