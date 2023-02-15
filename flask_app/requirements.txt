@@ -9,7 +9,7 @@ mysql-connector-python==8.0.17
 python-dotenv==0.10.3
 
 # For error handling:
-werkzeug==0.15.6
+werkzeug==2.2.3
 
 # As a production server
 gunicorn==19.9.0
